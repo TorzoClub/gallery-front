@@ -1,0 +1,33 @@
+$line-color: hsl(0, 0%, 60%);
+
+.title-split-line {
+  color: grey;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 1em 0;
+
+  &:before, &:after {
+    display: inline-block;
+    content: "　";
+    border: 0;
+    width: 6em;
+    height: 1px;
+    line-height: 1.5em;
+    background: rgba(48, 103, 133, 0.618);
+  }
+
+  &:before {
+    background: linear-gradient(to left, #{$line-color}, #{$line-color}, transparent);
+  }
+
+  &:after {
+    background: linear-gradient(to right, #{$line-color}, #{$line-color}, transparent);
+  }
+
+  .title-split-line-body {
+    padding: 0 0.5em;
+    color: #{$line-color};
+  }
+}

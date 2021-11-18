@@ -1,0 +1,162 @@
+.GuideLayoutWrapper {
+}
+
+.GuideLayout {
+  display: none;
+  position: fixed;
+  left: calc(50vw - 32px / 2);
+
+  z-index: 1000;
+  width: 32px;
+  height: 14px;
+
+  transition: opacity 382ms;
+}
+
+.GuideLayoutShow {
+  opacity: 1;
+}
+.GuideLayoutHide {
+  opacity: 0;
+}
+
+.GuideLayout-above {
+  display: block;
+  top: 72px;
+  transform: rotate(180deg);
+}
+
+.GuideLayout-below {
+  display: block;
+  bottom: 72px;
+}
+
+.shadow, .body {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  
+}
+.shadow {
+  .Line {
+    background-color: grey !important;
+    filter: blur(2px);
+    -webkit-filter: blur(2px);
+  }
+}
+.body {
+
+}
+
+@keyframes moveDown {
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(14px);
+  }
+}
+@keyframes moveDownWithAbove {
+  0% {
+    transform: translateY(-14px);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes moveDownWithBelow {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(14px);
+    opacity: 0;
+  }
+}
+.reserve {
+  .Arrow {
+    animation-direction: reverse;
+    animation-timing-function: ease-in;
+  }
+}
+.animate {
+  .Arrow0 {
+    // animation-delay: 573ms;
+    animation-name: moveDownWithAbove;
+  }
+
+  .Arrow1 {
+    // animation-delay: 382ms;
+    animation-name: moveDown;
+  }
+  .Arrow2 {
+    // animation-delay: 191ms;
+    animation-name: moveDown;
+  }
+  .Arrow3 {
+    // animation-delay: 0ms;
+    animation-name: moveDownWithBelow;
+  }
+  .Arrow {
+    animation-duration: 382ms;
+  }
+}
+
+.Arrow0 {
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.Arrow {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  align-content: flex-end;
+  display: flex;
+  // position: absolute;
+  // top: calc(50% - ( 32px ) / 2);
+  width: 32px;
+  height: 14px;
+  transition-property: opacity, margin-left, margin-right;
+  transition-duration: .618s;
+
+  .Line {
+    background-color: white;
+    // box-shadow: 0 0 1px #AAA;
+    height: 4px;
+    // border-radius: 3px;
+    // background-blend-mode: lighten;
+    // mix-blend-mode: lighten;
+    // background-blend-mode: darken, luminosity;
+    // backdrop-filter: brightness(10);
+    // -webkit-backdrop-filter: brightness(10);
+  }
+
+  .Line1 {
+    width: 100%;
+
+    transform-origin: right bottom;
+    transform: rotate(45deg);
+    transition: transform 382ms;
+  }
+
+  .Line2 {
+    // position: relative;
+    // left: calc(-16px);
+
+    width: 100%;
+    transform-origin: left bottom;
+    transform: rotate(-45deg) translate(0px, 1px);
+    transition: transform 382ms;
+  }
+}

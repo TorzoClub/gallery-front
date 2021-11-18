@@ -1,0 +1,214 @@
+$animationDuration: 800;
+$promptBodyDelayTiming: 300;
+
+$totalAnimationDuration: $animationDuration + $promptBodyDelayTiming;
+$InputPromptHeight: 96px;
+$BGGradientEdgeWidth: 20px;
+
+:export {
+  totalAnimationDuration: $totalAnimationDuration
+}
+
+// .input-prompt-wrapper.entered {
+//
+// }
+
+@keyframes InputPromptFadeOut {
+  from {
+    background-color: rgba(0, 0, 0, 0.182);
+  }
+
+  to {
+    background-color: transparent;
+  }
+}
+
+@keyframes InputPromptBGFadeOut {
+  from {
+    transform: translateX(calc(0vw - #{$BGGradientEdgeWidth}));
+  }
+
+  to {
+    transform: translateX(calc(100vw + #{$BGGradientEdgeWidth}));
+  }
+}
+
+@keyframes InputPromptBodyFadeOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(1em);
+  }
+}
+
+@keyframes InputPromptFadeIn {
+  from {
+    background-color: transparent;
+  }
+
+  to {
+    background-color: rgba(0, 0, 0, 0.182);
+  }
+}
+
+@keyframes InputPromptBGFadeIn {
+  from {
+    transform: translateX(calc(-100vw - #{$BGGradientEdgeWidth}));
+  }
+
+  to {
+    transform: translateX(calc(0vw - #{$BGGradientEdgeWidth}));
+  }
+}
+
+@keyframes InputPromptBodyFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-1em);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.input-prompt-wrapper {
+  background-color: rgba(0, 0, 0, 0.182);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+
+  z-index: 1;
+
+  &.exited {
+    display: none;
+
+    .input-prompt {
+      .ip-body {
+        opacity: 0;
+        transform: translateX(1em);
+      }
+    }
+  }
+  &.exiting {
+    animation-name: InputPromptFadeOut;
+    animation-duration: #{$animationDuration}ms;
+    animation-fill-mode: forwards;
+
+    .input-prompt {
+      .bg {
+        animation-name: InputPromptBGFadeOut;
+        animation-duration: #{$animationDuration}ms;
+        animation-fill-mode: forwards;
+      }
+
+      .ip-body {
+        animation-name: InputPromptBodyFadeOut;
+        // animation-delay: 300ms;
+        animation-duration: #{$animationDuration - 300}ms;
+        animation-fill-mode: forwards;
+
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+  }
+
+  &.entered {
+    .input-prompt {
+      .bg {
+        transform: translateX(calc(0vw - #{$BGGradientEdgeWidth}));
+      }
+
+      .ip-body {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+  }
+  &.entering {
+    animation-name: InputPromptFadeIn;
+    animation-duration: #{$animationDuration}ms;
+
+    .input-prompt {
+      .bg {
+        animation-name: InputPromptBGFadeIn;
+        animation-duration: #{$animationDuration}ms;
+        animation-fill-mode: forwards;
+      }
+
+      .ip-body {
+        animation-name: InputPromptBodyFadeIn;
+        animation-delay: 300ms;
+        animation-duration: #{$animationDuration - 300}ms;
+        animation-fill-mode: forwards;
+
+        opacity: 0;
+        transform: translateX(-1em);
+      }
+    }
+  }
+}
+
+.input-prompt-wrapper .input-prompt {
+  position: relative;
+  width: 100%;
+  height: $InputPromptHeight;
+
+  .bg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    // background-color: white;
+    height: $InputPromptHeight;
+    width: calc(100vw + #{$BGGradientEdgeWidth} * 2);
+
+    background: linear-gradient(to right, transparent 0px, white #{$BGGradientEdgeWidth}, white calc(100vw + (#{$BGGradientEdgeWidth} * 2) - #{$BGGradientEdgeWidth}), transparent);
+  }
+
+  .ip-body {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: $InputPromptHeight;
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    flex-direction: column;
+
+    .prompt-text {
+      line-height: 20px;
+    }
+
+    .loading-wrapper {
+      position: absolute;
+      left: 0;
+      top: 0;
+
+      width: 100%;
+      height: 100%;
+
+      display: flex;
+      align-items: center;
+      align-content: center;
+      justify-content: center;
+
+      background-color: rgba(255, 255, 255, 0.8);
+    }
+  }
+}

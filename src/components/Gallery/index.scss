@@ -1,0 +1,7 @@
+.gallery {
+  margin: auto;
+
+  &:last-child {
+    padding-bottom: 1em;
+  }
+}

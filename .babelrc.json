@@ -1,0 +1,7 @@
+{
+  "presets": ["react-app", "mobx"],
+  "plugins": [
+    "styled-jsx/babel",
+    "@babel/plugin-proposal-do-expressions"
+  ]
+}

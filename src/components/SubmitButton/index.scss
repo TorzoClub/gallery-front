@@ -1,0 +1,126 @@
+
+
+.button-frame:hover {
+  box-shadow: inset 0px 0px 2px rgba(255, 102, 0, 0.5);
+}
+
+.button-frame {
+  cursor: pointer;
+  outline: none;
+  width: 64px;
+  height: 64px;
+  margin: auto;
+
+  position: relative;
+
+  border-radius: 999px;
+  border: 0;
+
+  color: grey;
+  font-family: Arial, å¾®è½¯é›…é»‘;
+
+  box-shadow: inset 0px 0px 2px #F60;
+  background: transparent;
+  // background: white;
+  transition: box-shadow .618s;
+
+  &.ring {
+    @keyframes loop{
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0; transform: scale(1.4); }
+      100% { opacity: 0; transform: scale(2); }
+    }
+
+    .loop {
+      animation: loop 2s infinite;
+      animation-timing-function: ease-in-out;
+      animation-direction: normal;
+      animation-play-state: pause;
+    }
+
+    @keyframes textLoop {
+      0% { transform: scale(1); }
+      50% { transform: scale(0.9); }
+      100% { transform: scale(1); }
+    }
+
+    .button-click span {
+      animation: textLoop 200ms;
+      animation-timing-function: ease-in-out;
+      animation-direction: normal;
+      animation-play-state: pause;
+    }
+  }
+
+  &.blue {
+    box-shadow: rgb(48, 103, 133) 0px 0px 2px inset;
+
+    .button-click button {
+      box-shadow: rgb(48, 103, 133) 0px 0px 2px inset;
+    }
+
+    .button-click span {
+      color: rgba(48, 103, 133, 0.8);
+    }
+  }
+
+  .button-loop .loop {
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 999px;
+    box-shadow: inset 0px 0px 1px rgb(48, 103, 133);
+  }
+  .button-loop, .button-click, .button-frame {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+  }
+
+  .button-loop, .button-click {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+  .button-loop {
+    width: 100%;
+    height: 100%;
+    margin: auto;
+  }
+  .button-click {
+    width: 100%;
+    height: 100%;
+  }
+
+  button:hover {
+    opacity: 1;
+  }
+  button {
+    opacity: 0.5;
+    cursor: pointer;
+    outline: none;
+
+    width: 50%;
+    height: 50%;
+
+    border-radius: 999px;
+    border: 0;
+
+    font-family: Arial, å¾®è½¯é›…é»‘;
+    color: grey;
+
+    box-shadow: inset 0px 0px 2px rgba(255, 102, 0, 1);
+    background: transparent;
+
+    transition: opacity .382s, box-shadow .382s, transform 1.618s;
+    /* transform-origin: bottom center; */
+    /* transform: rotate(360deg) scale(2); */
+  }
+
+  span {
+    font-size: 16px;
+    color: rgba(255, 102, 0, 0.8);
+    transition: color .382s;
+  }
+}
