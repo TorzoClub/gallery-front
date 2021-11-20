@@ -36,8 +36,7 @@ export default (props) => {
   }
 
   const { selectedIdList } = context
-  const isChoosed = selectedIdList && (selectedIdList.indexOf(photo.id) !== -1)
-  const isHighlight = gallery.vote_submitted ? photo.is_voted : isChoosed
+  const isHighlight = selectedIdList && (selectedIdList.indexOf(photo.id) !== -1)
 
   useEffect(() => {
     if (member && member.avatar_thumb) {

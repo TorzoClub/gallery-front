@@ -87,15 +87,7 @@ function ActivityLayout({
 
         const isSubmitted = submittedPool[gallery.id]
 
-        if (isSubmitted) {
-          return
-        }
-
-        if (gallery.is_expired) {
-          return
-        }
-
-        if (gallery.vote_submitted) {
+        if (isSubmitted || gallery.is_expired || gallery.vote_submitted) {
           return
         }
 
@@ -238,6 +230,12 @@ export default (props) => {
           fetchListResult.then(({ active, galleries }) => {
             setActive(active)
             setList(galleries)
+
+            setSelectedIdList(
+              active.photos
+                .filter(photo => photo.is_voted)
+                .map(photo => photo.id)
+            )
 
             setConfirmState({ in: false })
 
