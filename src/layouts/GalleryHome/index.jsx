@@ -52,19 +52,21 @@ function ActivityLayout({
   selectedIdList,
   submittedPool,
 
-  setArrowTickTock,
   setSelectedIdList,
-  setImageDetail,
+  toDetail,
 
   hideVoteButton,
   active,
 
   submiting,
   showArrow,
-  arrowTickTock,
+
   confirmState,
-  handleClickSubmit
+
+  onClickSubmit,
 }) {
+  const [arrowTickTock, setArrowTickTock] = useState(null)
+
   const showSubmitButton = !active.vote_submitted
   let isSubmitted = submittedPool[active.id]
   // isSubmitted = true
@@ -81,6 +83,7 @@ function ActivityLayout({
 
   return (
     <HomeContext.Provider value={{
+      toDetail,
       selectedIdList,
       handleClickVote: async (gallery, photo) => {
         console.warn('handleClickVote', gallery.vote_submitted, photo)
@@ -112,8 +115,6 @@ function ActivityLayout({
 
         setSelectedIdList(newSelectedIdList)
       },
-
-      toDetail: (detail) => setImageDetail(detail)
     }}>
       <div className="gallery-wrapper">
         <Gallery hideVoteButton={hideVoteButton} gallery={active} />
@@ -137,7 +138,7 @@ function ActivityLayout({
                         if (!showSubmitButton || isSubmitted || !selectedIdList.length || submiting) {
                           return
                         } else {
-                          handleClickSubmit()
+                          onClickSubmit()
                         }
                       }}
                     />
@@ -175,7 +176,6 @@ export default (props) => {
   const [loaded, setLoaded] = useState(false)
 
   const [showArrow, setShowArrow] = useState(false)
-  const [arrowTickTock, setArrowTickTock] = useState(null)
 
   const [hideVoteButton, setHideVoteButton] = useState(true)
 
@@ -332,18 +332,17 @@ export default (props) => {
                   selectedIdList,
                   submittedPool,
 
-                  setArrowTickTock,
                   setSelectedIdList,
-                  setImageDetail,
+                  toDetail: (detail) => setImageDetail(detail),
 
                   hideVoteButton,
                   active,
 
                   submiting,
                   showArrow,
-                  arrowTickTock,
                   confirmState,
-                  handleClickSubmit
+
+                  onClickSubmit: () => handleClickSubmit(),
                 }}/>
               )}
 
