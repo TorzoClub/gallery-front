@@ -29,15 +29,171 @@ const useStateObject = (initObj) => {
   }]
 }
 
+function LoadingLayout() {
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100vw',
+        height: '100vh'
+      }}
+    >
+      <Loading />
+    </div>
+  )
+}
+
+function ActivityLayout({
+  selectedIdList,
+  submittedPool,
+
+  setArrowTickTock,
+  setSelectedIdList,
+  setImageDetail,
+
+  hideVoteButton,
+  active,
+
+  submiting,
+  showArrow,
+  arrowTickTock,
+  confirmState,
+  handleClickSubmit
+}) {
+  const showSubmitButton = !active.vote_submitted
+  let isSubmitted = submittedPool[active.id]
+  // isSubmitted = true
+
+  let buttonMode = ''
+
+  if (isSubmitted) {
+    buttonMode = 'done'
+  } else if (confirmState.in) {
+    buttonMode = 'blue'
+  } else if (selectedIdList.length) {
+    buttonMode = 'blue ring'
+  }
+
+  return (
+    <HomeContext.Provider value={{
+      selectedIdList,
+      handleClickVote: async (gallery, photo) => {
+        console.warn('handleClickVote', gallery.vote_submitted, photo)
+
+        const isSubmitted = submittedPool[gallery.id]
+
+        if (isSubmitted) {
+          return
+        }
+
+        if (gallery.is_expired) {
+          return
+        }
+
+        if (gallery.vote_submitted) {
+          return
+        }
+
+        const { id } = photo
+  
+        let newSelectedIdList = [...selectedIdList]
+
+        const idx = newSelectedIdList.indexOf(id)
+
+        if (idx === -1) {
+          if (gallery.vote_limit && (newSelectedIdList.length >= gallery.vote_limit)) {
+            // alert('enough')
+            return
+          } else {
+            setArrowTickTock(Date.now())
+            newSelectedIdList.push(id)
+          }
+        } else {
+          newSelectedIdList.splice(idx, 1)
+          setArrowTickTock(-Date.now())
+        }
+
+        setSelectedIdList(newSelectedIdList)
+      },
+
+      toDetail: (detail) => setImageDetail(detail)
+    }}>
+      <div className="gallery-wrapper">
+        <Gallery hideVoteButton={hideVoteButton} gallery={active} />
+
+        {showSubmitButton && (
+          <div className="submit-button-wrapper">
+            {(() => {
+              if (submiting) {
+                return <Loading />
+              } else if (isSubmitted) {
+                return <div className="submitted">感谢你的投票</div>
+              } else {
+                return (
+                  <GuideLayout
+                    showArrow={showArrow}
+                    animatedTickTock={arrowTickTock}
+                  >
+                    <SubmitButton
+                      mode={buttonMode}
+                      clickButton={e => {
+                        if (!showSubmitButton || isSubmitted || !selectedIdList.length || submiting) {
+                          return
+                        } else {
+                          handleClickSubmit()
+                        }
+                      }}
+                    />
+                  </GuideLayout>
+                )
+              }
+            })()}
+
+            <style jsx>{`
+              .submit-button-wrapper {
+                margin-top: 32px;
+
+                height: 64px;
+                width: 100%;
+
+                display: flex;
+                align-items: center;
+                align-content: center;
+                justify-content: center;
+              }
+
+              .submit-button-wrapper .submitted {
+                color: #999999;
+              }
+            `}</style>
+          </div>
+        )}
+      </div>
+    </HomeContext.Provider>
+  )
+  // return ()
+}
+
 export default (props) => {
+  const [loaded, setLoaded] = useState(false)
+
   const [showArrow, setShowArrow] = useState(false)
   const [arrowTickTock, setArrowTickTock] = useState(null)
+
   const [hideVoteButton, setHideVoteButton] = useState(true)
-  const [selectedGalleryId, setSelectedGalleryId] = useState(null)
+
   const [selectedIdList, setSelectedIdList] = useState([])
+  
   const [submiting, setSubmiting] = useState(false)
-  const [loaded, setLoaded] = useState(false)
+  
+  const [active, setActive] = useState(null)
   const [list, setList] = useState([])
+
   const [submittedPool, setSubmittedPool] = useState({})
 
   // const [showDetail, setShowDetail] = useState(false)
@@ -53,16 +209,18 @@ export default (props) => {
   })
 
   useEffect(() => {
-    fetchList().then(list => {
+    fetchList().then(({ active, galleries: list }) => {
       setList(list)
       setLoaded(true)
 
-      const inActivityTiming = !list.every(item => item.is_expired)
-      if (!inActivityTiming) {
+      const hasActive = Boolean(active)
+      if (!hasActive) {
         // 没活动？那没事了
         setHideVoteButton(false)
         return
       }
+
+      setActive(active)
 
       if (!currentQQNum) {
         // 没扣号的话就来个弹窗
@@ -77,8 +235,10 @@ export default (props) => {
         const fetchListResult = fetchListWithQQNum(Number(currentQQNum))
 
         vait.timeout(1500).then(() => {
-          fetchListResult.then(list => {
-            setList(list)
+          fetchListResult.then(({ active, galleries }) => {
+            setActive(active)
+            setList(galleries)
+
             setConfirmState({ in: false })
 
             vait.timeout(618).then(() => {
@@ -118,7 +278,7 @@ export default (props) => {
             })
           }
         } catch (err) {
-          console.error('handlesubmitDetect error', err)
+          console.error('handlesubmit error', err)
           setConfirmState({ isLoading: false, isFailure: err })
         }
       }}
@@ -138,14 +298,14 @@ export default (props) => {
         })
       } else {
         await vote({
-          gallery_id: selectedGalleryId,
+          gallery_id: active.id,
           photo_id_list: selectedIdList,
           qq_num: Number(currentQQNum)
         })
 
         setSubmittedPool({
           submittedPool,
-          [selectedGalleryId]: true
+          [active.id]: true
         })
       }
     } catch (err) {
@@ -162,147 +322,48 @@ export default (props) => {
   }
 
   return (
-    <HomeContext.Provider value={{
-      selectedGalleryId,
-      selectedIdList,
-      handleClickVote: async (gallery, photo) => {
-        console.warn('handleClickVote', gallery.vote_submitted, photo)
-
-        const isSubmitted = submittedPool[gallery.id]
-
-        if (isSubmitted) {
-          return
-        }
-
-        if (gallery.is_expired) {
-          return
-        }
-
-        if (gallery.vote_submitted) {
-          return
-        }
-
-        const { id, gallery_id } = photo
-  
-        let newSelectedIdList = [...selectedIdList]
-        let newSelectedGalleryId = selectedGalleryId
-
-        if (selectedGalleryId && (gallery_id !== selectedGalleryId)) {
-          return alert('different gallery_id')
-        } else {
-          newSelectedGalleryId = gallery_id
-        }
-
-        const idx = newSelectedIdList.indexOf(id)
-
-        if (idx === -1) {
-          if (gallery.vote_limit && (newSelectedIdList.length >= gallery.vote_limit)) {
-            // alert('enough')
-            return
-          } else {
-            setArrowTickTock(Date.now())
-            newSelectedIdList.push(id)
-          }
-        } else {
-          newSelectedIdList.splice(idx, 1)
-          setArrowTickTock(-Date.now())
-        }
-
-        setSelectedGalleryId(newSelectedGalleryId)
-        setSelectedIdList(newSelectedIdList)
-      },
-      toDetail: (detail) => {
-        console.log('detail', detail)
-
-        setImageDetail(detail)
-        // setShowDetail(true)
-      }
-    }}>
+    <>
       <div className={`gallery-home`} style={{ minHeight: '100vh' }}>
         {
           !loaded ? (
-            <div
-              style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                width: '100vw',
-                height: '100vh'
-              }}
-            >
-              <Loading />
-            </div>
+            <LoadingLayout />
           ) : (
             <div className="body">
-              {
-                list.map(gallery => {
-                  const showSubmitButton = !gallery.vote_submitted
-                  let isSubmitted = submittedPool[gallery.id]
-                  // isSubmitted = true
+              {active && (
+                <ActivityLayout {...{
+                  selectedIdList,
+                  submittedPool,
 
-                  let buttonMode = ''
+                  setArrowTickTock,
+                  setSelectedIdList,
+                  setImageDetail,
 
-                  if (isSubmitted) {
-                    buttonMode = 'done'
-                  } else if (confirmState.in) {
-                    buttonMode = 'blue'
-                  } else if (selectedIdList.length) {
-                    buttonMode = 'blue ring'
-                  }
+                  hideVoteButton,
+                  active,
 
-                  return (
-                    <div className="gallery-wrapper" key={gallery.id}>
-                      <Gallery hideVoteButton={hideVoteButton} gallery={gallery} />
+                  submiting,
+                  showArrow,
+                  arrowTickTock,
+                  confirmState,
+                  handleClickSubmit
+                }}/>
+              )}
 
-                      {
-                        !gallery.is_expired && showSubmitButton &&
-                        <div className="submit-button-wrapper">
-                          {(() => {
-                            if (submiting) {
-                              return <Loading />
-                            } else if (isSubmitted) {
-                              return <div className="submitted">感谢你的投票</div>
-                            } else {
-                              return (
-                                <GuideLayout
-                                  showArrow={showArrow}
-                                  animatedTickTock={arrowTickTock}
-                                >
-                                  <SubmitButton
-                                    mode={buttonMode}
-                                    clickButton={e => {
-                                      if (!showSubmitButton) {
-                                        return
-                                      }
-
-                                      if (isSubmitted) {
-                                        return
-                                      }
-
-                                      if (!selectedIdList.length) {
-                                        return
-                                      }
-
-                                      if (submiting) {
-                                        return
-                                      }
-
-                                      return handleClickSubmit()
-                                    }}
-                                  />
-                                </GuideLayout>
-                              )
-                            }
-                          })()}
-                        </div>
-                      }
-                    </div>
-                  )
-                })
-              }
+              <HomeContext.Provider
+                value={{
+                  toDetail: (detail) => setImageDetail(detail)
+                }}
+              >
+                {
+                  list.map(gallery => {
+                    return (
+                      <div className="gallery-wrapper" key={gallery.id}>
+                        <Gallery hideVoteButton={hideVoteButton} gallery={gallery} />
+                      </div>
+                    )
+                  })
+                }
+              </HomeContext.Provider>
 
               <PhotoDetail
                 detail={imageDetail}
@@ -322,32 +383,8 @@ export default (props) => {
             padding-bottom: 64px;
             box-sizing: border-box;
           }
-
-          .submit-vote-button:active {
-            box-shadow: inset 0 1px 1px hsla(199, 81%, 44%, 1);
-          }
-
-          .submit-vote-button:active .text {
-            transform: translateY(-.5px);
-          }
-
-          .submit-button-wrapper {
-            margin-top: 32px;
-
-            height: 64px;
-            width: 100%;
-
-            display: flex;
-            align-items: center;
-            align-content: center;
-            justify-content: center;
-          }
-
-          .submit-button-wrapper .submitted {
-            color: #999999;
-          }
         `}</style>
       </div>
-    </HomeContext.Provider>
+    </>
   )
 }
