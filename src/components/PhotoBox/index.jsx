@@ -35,14 +35,16 @@ export default (props) => {
     background: loaded ? 'white' : ''
   }
 
-  const { selectedGalleryId, selectedIdList } = context
-  const isChoosed = (selectedGalleryId === photo.gallery_id) && (selectedIdList.indexOf(photo.id) !== -1)
+  const { selectedIdList } = context
+  const isChoosed = selectedIdList && (selectedIdList.indexOf(photo.id) !== -1)
   const isHighlight = gallery.vote_submitted ? photo.is_voted : isChoosed
 
   useEffect(() => {
-    loadThumb(member.avatar_thumb).then(setAvatarThumb)
+    if (member && member.avatar_thumb) {
+      loadThumb(member.avatar_thumb).then(setAvatarThumb)
+    }
     loadThumb(photo.thumb).then(setThumb)
-  }, [member.avatar_thumb, photo.thumb])
+  }, [member && member.avatar_thumb, photo.thumb])
 
   return (
     <div className={`image-box-wrapper ${screen}`}>
@@ -84,16 +86,21 @@ export default (props) => {
 
           {/* <div className="highlight"></div> */}
         </div>
+        
         <div className="bottom-area">
-          <div className="bottom-block">
-            <div className="avatar-wrapper">
-              <div className="avatar">
-                <div className="avatar-inner" style={{ transform: avatarThumb ? 'translateY(0px)' : 'translateY(-100%)', backgroundImage: `url(${avatarThumb})` }}></div>
-              </div>
-            </div>
+          {
+            member && (
+              <div className="bottom-block">
+                <div className="avatar-wrapper">
+                  <div className="avatar">
+                    <div className="avatar-inner" style={{ transform: avatarThumb ? 'translateY(0px)' : 'translateY(-100%)', backgroundImage: `url(${avatarThumb})` }}></div>
+                  </div>
+                </div>
 
-            <div className="member-name"><div className="avatar-float"></div><span className="name-label">{member.name}</span></div>
-          </div>
+                <div className="member-name"><div className="avatar-float"></div><span className="name-label">{member.name}</span></div>
+              </div>
+            )
+          }
 
           {
             props.hideVoteButton || (

@@ -22,7 +22,7 @@ const createColumns = (column_count, photos) => {
   const columns = Array.from(Array(column_count)).map(() => [])
 
   photos.forEach(photo => {
-    loadThumb(photo.member.avatar_thumb)
+    photo.member && loadThumb(photo.member.avatar_thumb)
     loadThumb(photo.thumb)
     const columnsHeight = columns.map(computeColumnHeight)
 
