@@ -45,11 +45,13 @@ export default (props) => {
     loadThumb(photo.thumb).then(setThumb)
   }, [member && member.avatar_thumb, photo.thumb])
 
+  const isHideMember = !Boolean(member)
+
   return (
     <div className={`image-box-wrapper ${screen}`}>
       <div className="image-box">
         <div
-          className="cover-frame"
+          className={`cover-area ${isHideMember ? 'front-index bottom-radius bottom-shadow' : ''}`}
           ref={coverFrameEl}
           style={coverFrameStyle}
           onClick={async () => {
@@ -88,7 +90,7 @@ export default (props) => {
         
         <div className="bottom-area">
           {
-            member && (
+            isHideMember || (
               <div className="bottom-block">
                 <div className="avatar-wrapper">
                   <div className="avatar">

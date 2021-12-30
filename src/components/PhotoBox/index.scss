@@ -34,7 +34,27 @@ $avatar-size-mobile: 36px;
 
   box-sizing: border-box;
 
-  .cover-frame {
+  .bottom-radius {
+    border-bottom-left-radius: $image-box-border-radius;
+    border-bottom-right-radius: $image-box-border-radius;
+  }
+
+  .bottom-shadow {
+    $box-shadow-color: rgba(0, 0, 0, 0.2);
+    box-shadow:
+      0 10px 10px -10px rgba(0, 0, 0, 0.15),
+      0 -1px 1px -2px #{$box-shadow-color},
+      0 0px 1px -1px #{$box-shadow-color},
+      0 1px 1px -1px #{$box-shadow-color},
+      0 2px 2px -2px #{$box-shadow-color},
+      0 1px 1px -2px #{$box-shadow-color};
+  }
+
+  .front-index {
+    z-index: 2;
+  }
+
+  .cover-area {
     width: 100%;
     height: 200px;
     position: relative;
@@ -45,7 +65,7 @@ $avatar-size-mobile: 36px;
     overflow: hidden;
 
     background: linear-gradient(-15deg, #F0F0F0, #FAFAFA, #F0F0F0);
-    box-shadow: inset 0px 0px 1px #CCC;
+    // box-shadow: inset 0px 0px 1px #CCC;
 
     .box-loading-frame {
       position: absolute;
@@ -96,10 +116,6 @@ $avatar-size-mobile: 36px;
     position: relative;
 
     .bottom-block {
-      // position: absolute;
-      // left: 0;
-      // top: 0;
-
       position: relative;
       z-index: 1;
 
@@ -107,6 +123,8 @@ $avatar-size-mobile: 36px;
       width: 100%;
 
       background-color: white;
+
+      $box-shadow-color: rgba(0, 0, 0, 0.25);
       box-shadow:
         // inset 0 2px 2px -2px rgba(0, 0, 0, 0.382),
         inset 0 6px 6px -6px rgba(0, 0, 0, 0.2),
@@ -195,7 +213,7 @@ $avatar-size-mobile: 36px;
 
     @keyframes back-bottom-show {
       0% {
-        height: 0
+        height: 0;
       }
       100% {
         height: $back-bottom-height;
