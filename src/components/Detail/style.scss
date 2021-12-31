@@ -7,6 +7,8 @@
   }
 }
 .detail-frame {
+  z-index: 10010;
+
   display: flex;
   align-items: center;
   align-content: center;
@@ -21,8 +23,6 @@
   overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
   -webkit-tap-highlight-color: transparent;
-
-  z-index: 10000;
 
   .bgMask {
     position: absolute;
