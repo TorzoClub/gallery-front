@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 
 import vait from 'vait'
 
@@ -48,29 +48,73 @@ function LoadingLayout() {
   )
 }
 
+function updateListItem(list, findFn, updateFn) {
+  return list.map((item) => {
+    return findFn(item) ? { ...item, ...updateFn({ ...item }) } : item
+  })
+}
+
+function updateListItemByProperty(list, findProperty, propertyValue, updateData) {
+  return updateListItem(
+    list,
+    (item) => item[findProperty] === propertyValue,
+    () => updateData
+  )
+}
+
+function updateListItemById(list, id, updateData) {
+  return updateListItemByProperty(list, 'id', id, updateData)
+}
+
+function exchangePos(arr, idxA, idxB) {
+  arr = [...arr]
+  const tmp = arr[idxA]
+  arr[idxA] = arr[idxB]
+  arr[idxB] = tmp
+  return arr
+}
+
+function randomNum(length) {
+  return Math.floor(Math.random() * length)
+}
+
+function _shuffleArray(arr, idx) {
+  if (arr.length < 2) {
+    return arr
+  } else if (idx < arr.length) {
+    return _shuffleArray(
+      exchangePos(arr, idx, randomNum(arr.length)),
+      idx + 1
+    )
+  } else {
+    return arr
+  }
+}
+
+function curryRight(f) {
+  return b => a => f(a, b)
+}
+
+const shuffleArray = curryRight(_shuffleArray)(0)
+
 function ActivityLayout({
-  selectedIdList,
-  submittedPool,
-
-  setSelectedIdList,
-  toDetail,
-
-  hideVoteButton,
   active,
-
+  hideVoteButton,
   submiting,
   showArrow,
-
   confirmState,
 
+  submittedPool,
+  selectedIdList,
+  setSelectedIdList,
+
+  toDetail,
   onClickSubmit,
 }) {
   const [arrowTickTock, setArrowTickTock] = useState(null)
 
   const showSubmitButton = !active.vote_submitted
   let isSubmitted = submittedPool[active.id]
-  // isSubmitted = true
-
   let buttonMode = ''
 
   if (isSubmitted) {
@@ -85,7 +129,7 @@ function ActivityLayout({
     <HomeContext.Provider value={{
       toDetail,
       selectedIdList,
-      handleClickVote: async (gallery, photo) => {
+      handleClickVote(gallery, photo) {
         console.warn('handleClickVote', gallery.vote_submitted, photo)
 
         const isSubmitted = submittedPool[gallery.id]
@@ -169,7 +213,6 @@ function ActivityLayout({
       </div>
     </HomeContext.Provider>
   )
-  // return ()
 }
 
 export default (props) => {
@@ -183,7 +226,7 @@ export default (props) => {
   
   const [submiting, setSubmiting] = useState(false)
   
-  const [active, setActive] = useState(null)
+  const [active, _setActive] = useState(null)
   const [list, setList] = useState([])
 
   const [submittedPool, setSubmittedPool] = useState({})
@@ -199,6 +242,27 @@ export default (props) => {
     isFailure: null,
     disableInput: false
   })
+
+  const setActive = useCallback((newValue) => {
+    if (active) {
+      const oldPhotos = [...active.photos]
+      const newPhotos = [...newValue.photos]
+
+      newPhotos.forEach((p) => {
+        updateListItemById(oldPhotos, p.id, { ...p })
+      })
+
+      _setActive({
+        ...newValue,
+        photos: oldPhotos,
+      })
+    } else {
+      _setActive({
+        ...newValue,
+        photos: shuffleArray(newValue.photos)
+      })
+    }
+  }, [active, _setActive])
 
   useEffect(() => {
     fetchList().then(({ active, galleries: list }) => {
@@ -308,12 +372,12 @@ export default (props) => {
       }
     } catch (err) {
       if (err.status === 403 && /已过投票截止时间/.test(err.message)) {
-        alert('已经过了投票时间了，朋友，下一年一定支持')
+        alert('已经过了投票时间了，朋友，下一年再来支持吧')
         return
+      } else {
+        console.error(err.message)
+        alert(err.message)
       }
-
-      console.error(err.message)
-      alert(err.message)
     } finally {
       setSubmiting(false)
     }
@@ -329,19 +393,17 @@ export default (props) => {
             <div className="body">
               {active && (
                 <ActivityLayout {...{
-                  selectedIdList,
-                  submittedPool,
-
-                  setSelectedIdList,
-                  toDetail: (detail) => setImageDetail(detail),
-
-                  hideVoteButton,
                   active,
-
+                  hideVoteButton,
                   submiting,
                   showArrow,
                   confirmState,
 
+                  submittedPool,
+                  selectedIdList,
+                  setSelectedIdList,
+
+                  toDetail: (detail) => setImageDetail(detail),
                   onClickSubmit: () => handleClickSubmit(),
                 }}/>
               )}
