@@ -18,6 +18,7 @@ import ConfirmQQ from 'components/ConfirmQQ'
 import PhotoDetail from 'components/Detail'
 import GuideLayout from 'components/GuideLayout'
 import SubmitButton from 'components/SubmitButton'
+import ConfirmVote from '../../components/ConfirmVote'
 
 const useStateObject = (initObj) => {
   const [obj, setObj] = useState(initObj)
@@ -243,6 +244,13 @@ export default (props) => {
     disableInput: false
   })
 
+  const [confirmVoteState, setConfirmVoteState] = useStateObject({
+    in: false,
+    isDone: false,
+    isLoading: false,
+    isFailure: null,
+  })
+
   const setActive = useCallback((newValue) => {
     if (active) {
       const oldPhotos = [...active.photos]
@@ -302,10 +310,8 @@ export default (props) => {
             )
 
             setConfirmState({ in: false })
-
             vait.timeout(618).then(() => {
-              setHideVoteButton(false)
-              setShowArrow(true)
+              setConfirmVoteState({ in: true })
             })
           }).catch(err => {
             alert(`获取投票信息失败: ${err.message}`)
@@ -316,6 +322,26 @@ export default (props) => {
       alert(`获取相册信息失败: ${err.message}`)
     })
   }, [currentQQNum])
+
+  const ConfirmVoteLayout = (
+    <ConfirmVote
+      {...confirmVoteState}
+      handleInputChange={() => {
+        setConfirmVoteState({
+          isFailure: null
+        })
+      }}
+      handleClickAnyWhere={() => {
+        setConfirmVoteState({
+          in: false
+        })
+        vait.timeout(618).then(() => {
+          setHideVoteButton(false)
+          setShowArrow(true)
+        })
+      }}
+    />
+  )
 
   const ConfirmQQLayout = (
     <ConfirmQQ
@@ -436,6 +462,7 @@ export default (props) => {
         }
 
         {ConfirmQQLayout}
+        {ConfirmVoteLayout}
 
         <style jsx>{`
           .gallery-home {
