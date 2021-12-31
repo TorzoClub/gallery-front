@@ -434,6 +434,8 @@ export default (props) => {
                 }}/>
               )}
 
+              {/* {normalPhotos} */}
+
               <HomeContext.Provider
                 value={{
                   toDetail: (detail) => setImageDetail(detail)
@@ -442,7 +444,7 @@ export default (props) => {
                 {
                   list.map(gallery => {
                     return (
-                      <div className="gallery-wrapper" key={gallery.id}>
+                      <div className="gallery-wrapper" key={gallery.id} style={{ display: active ? 'none' : '' }}>
                         <Gallery hideVoteButton={hideVoteButton} gallery={gallery} />
                       </div>
                     )
