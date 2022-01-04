@@ -19,6 +19,8 @@ import PhotoDetail from 'components/Detail'
 import GuideLayout from 'components/GuideLayout'
 import SubmitButton from 'components/SubmitButton'
 import ConfirmVote from '../../components/ConfirmVote'
+import shuffleArray from '../../utils/shuffle-array'
+import { updateListItemById } from '../../utils/common'
 
 const useStateObject = (initObj) => {
   const [obj, setObj] = useState(initObj)
@@ -48,55 +50,6 @@ function LoadingLayout() {
     </div>
   )
 }
-
-function updateListItem(list, findFn, updateFn) {
-  return list.map((item) => {
-    return findFn(item) ? { ...item, ...updateFn({ ...item }) } : item
-  })
-}
-
-function updateListItemByProperty(list, findProperty, propertyValue, updateData) {
-  return updateListItem(
-    list,
-    (item) => item[findProperty] === propertyValue,
-    () => updateData
-  )
-}
-
-function updateListItemById(list, id, updateData) {
-  return updateListItemByProperty(list, 'id', id, updateData)
-}
-
-function exchangePos(arr, idxA, idxB) {
-  arr = [...arr]
-  const tmp = arr[idxA]
-  arr[idxA] = arr[idxB]
-  arr[idxB] = tmp
-  return arr
-}
-
-function randomNum(length) {
-  return Math.floor(Math.random() * length)
-}
-
-function _shuffleArray(arr, idx) {
-  if (arr.length < 2) {
-    return arr
-  } else if (idx < arr.length) {
-    return _shuffleArray(
-      exchangePos(arr, idx, randomNum(arr.length)),
-      idx + 1
-    )
-  } else {
-    return arr
-  }
-}
-
-function curryRight(f) {
-  return b => a => f(a, b)
-}
-
-const shuffleArray = curryRight(_shuffleArray)(0)
 
 function ActivityLayout({
   active,
