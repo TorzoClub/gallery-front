@@ -9,6 +9,7 @@
     "jsx": "preserve",
     "rootDir": "src",
     "skipLibCheck": true,
+    "baseUrl": "src",
     "lib": [
       "DOM",
       "ES2015"
