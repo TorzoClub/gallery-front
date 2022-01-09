@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useEffect, useState, ReactChildren } from 'react'
 
 import s from './index.module.scss'
 
@@ -7,12 +7,16 @@ function getWindowHeight() {
   return innerHeight
 }
 
-export default ({ showArrow = true, animatedTickTock, children }) => {
-  const WrapperEl = useRef(null)
-  const [pos, setPos] = useState(null)
+export default ({ showArrow = true, animatedTickTock, children }: {
+  showArrow: boolean;
+  animatedTickTock: string | number;
+  children: ReactChildren
+}) => {
+  const WrapperEl = useRef<HTMLDivElement>(null)
+  const [pos, setPos] = useState<'below' | 'above' | null>(null)
   const [showAnimated, setAnimated] = useState(false)
   const [reserveAnimated, setReserveAnimated] = useState(false)
-  
+
   useEffect(() => {
     const el = WrapperEl.current
     if (!el) {
@@ -39,7 +43,7 @@ export default ({ showArrow = true, animatedTickTock, children }) => {
       window.removeEventListener('scroll', handler)
       window.removeEventListener('resize', handler)
     }
-  }, [WrapperEl.current])
+  }, [])
 
   useEffect(() => {
     if (animatedTickTock < 0) {
