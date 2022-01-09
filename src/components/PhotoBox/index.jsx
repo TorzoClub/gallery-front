@@ -43,9 +43,10 @@ export default (props) => {
       loadThumb(member.avatar_thumb).then(setAvatarThumb)
     }
     loadThumb(photo.thumb).then(setThumb)
-  }, [member && member.avatar_thumb, photo.thumb])
+  }, [member, photo.thumb])
+  // member && member.avatar_thumb, photo.thumb
 
-  const isHideMember = !Boolean(member)
+  const isHideMember = !member
 
   return (
     <div className={`image-box-wrapper ${screen}`}>
@@ -61,14 +62,14 @@ export default (props) => {
               top: fromTop,
               left: fromLeft
             } = coverFrameEl.current.getBoundingClientRect()
-            context.toDetail && context.toDetail({
+            if (context.toDetail) context.toDetail({
               from: {
-                thumb,
                 height: fromHeight,
                 width: fromWidth,
                 top: fromTop,
                 left: fromLeft,
               },
+              thumb,
               src: photo.src,
               height: photo.height,
               width: photo.width
@@ -87,7 +88,7 @@ export default (props) => {
 
           {/* <div className="highlight"></div> */}
         </div>
-        
+
         <div className="bottom-area">
           {
             isHideMember || (

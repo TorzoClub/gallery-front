@@ -4,13 +4,42 @@ import useDisableScroll from 'hooks/useDisableScroll'
 
 import './style.scss'
 
-const getCenter = (totalLength, length) => (totalLength / 2) - (length / 2)
+const getCenter = (totalLength: number, length: number) => (totalLength / 2) - (length / 2)
+
+type OptProperties<T> = {
+  [K in keyof T]?: T[K]
+}
+
+type ImagePos = {
+  height: number
+  width: number
+  left: number
+  top: number
+}
+type TouchPos = { x: number; y: number}
+
+const calcTouchDragPos = (touchStart: TouchPos, touchMove: TouchPos): TouchPos => {
+  const x = 0
+  let y = touchMove.y - touchStart.y
+
+  const totalLength = window.innerHeight - (touchMove.y)
+  let b = y / totalLength
+
+  if (b > 1) {
+    console.log('滑动到极限了')
+    b = 1
+  }
+
+  y = b * 100
+
+  return { x, y }
+}
 
 const IMAGE_PADDING = 50
 const calcImageFullScreenPos = (
-  { width: imgW, height: imgH },
+  { width: imgW, height: imgH }: { width: number, height: number },
   GLOBAL = window
-) => {
+): ImagePos => {
   const { innerWidth, innerHeight } = GLOBAL
   const imageProportion = imgH / imgW
 
@@ -56,25 +85,34 @@ const calcImageFullScreenPos = (
   }
 }
 
-export default ({ detail, onCancel = () => undefined }) => {
-  const detailFrameEl = useRef(null)
-  const imageFrameEl = useRef(null)
-  const [touchStart, setTouchStart] = useState(null)
-  const [touchMove, setTouchMove] = useState(null)
-
+export default ({ detail, onCancel = () => undefined }: {
+  detail: {
+    from: ImagePos
+    thumb: string
+    src: string
+    height: number
+    width: number
+  }
+  onCancel: () => void
+}) => {
   const [isShow, setIsShow] = useState(false)
-  const [opacity, setOpacity] = useState(0)
+  const detailFrameEl = useRef<HTMLDivElement | null>(null)
+  const imageFrameEl = useRef<HTMLDivElement | null>(null)
 
+  const [opacity, setOpacity] = useState(0)
   const [sourceUrl, setSourceUrl] = useState('')
   const [thumbUrl, setThumbUrl] = useState('')
-  const [fromPos, setFromPos] = useState(null)
-  const [toPos, setToPos] = useState(null)
+  const [fromPos, setFromPos] = useState<ImagePos | null>(null)
+  const [toPos, setToPos] = useState<ImagePos | null>(null)
   const [imageFrameTransition, setImageFrameTransition] = useState(true)
+
+  const [touchStart, setTouchStart] = useState<TouchPos | null>(null)
+  const [touchMove, setTouchMove] = useState<TouchPos | null>(null)
 
   useEffect(() => {
     if (detail) {
       setImageFrameTransition(true)
-      setThumbUrl(detail.from.thumb)
+      setThumbUrl(detail.thumb)
       setSourceUrl(detail.src)
       const { top, left, width, height } = detail.from
       setFromPos({
@@ -91,8 +129,8 @@ export default ({ detail, onCancel = () => undefined }) => {
       setTouchStart(null)
       setOpacity(0)
 
-      let firstV = vait.timeout(382)
-      let secondV
+      const firstV = vait.timeout(382)
+      let secondV: any
 
       firstV
         .then(() => {
@@ -170,13 +208,7 @@ export default ({ detail, onCancel = () => undefined }) => {
   }, [detail, fromPos])
 
   useEffect(() => {
-    if (!imageFrameEl.current) {
-      return
-    }
-
-    const { current: el } = imageFrameEl
-
-    const touchStartHandler = (e) => {
+    const touchStartHandler: HTMLDivElement['ontouchstart'] = (e) => {
       const { touches } = e
       if (touches.length !== 1) {
         // 不是单指操作的情况
@@ -193,7 +225,7 @@ export default ({ detail, onCancel = () => undefined }) => {
         y: touch.clientY,
       })
     }
-    const touchMoveHandler = (e) => {
+    const touchMoveHandler: HTMLDivElement['ontouchmove'] = (e) => {
       const { touches } = e
       if (touches.length !== 1) {
         // 不是单指操作的情况
@@ -203,20 +235,18 @@ export default ({ detail, onCancel = () => undefined }) => {
       e.stopPropagation()
       e.preventDefault()
 
-      const touch = touches[0]
-      const willWrite = { ...touchMove }
-      if ((touch.clientX >= 0) && (touch.clientX < window.innerWidth)) {
-        willWrite.x = touch.clientX
+      const { clientX, clientY } = touches[0]
+      const willWrite = touchMove ? { ...touchMove } : { x: 0, y: 0 }
+      if ((clientX >= 0) && (clientX < window.innerWidth)) {
+        willWrite.x = clientX
       }
-      if ((touch.clientY >= 0) && (touch.clientY < window.innerHeight)) {
-        willWrite.y = touch.clientY
+      if ((clientY >= 0) && (clientY < window.innerHeight)) {
+        willWrite.y = clientY
       }
       setTouchMove(willWrite)
     }
-
-    let touchEndVait
-
-    const touchEndHandler = (e) => {
+    let touchEndV
+    const touchEndHandler: HTMLDivElement['ontouchend'] = (e) => {
       const { changedTouches: touches } = e
       if (touches.length !== 1) {
         // 不是单指操作的情况
@@ -243,83 +273,70 @@ export default ({ detail, onCancel = () => undefined }) => {
         setImageFrameTransition(true)
         setTouchStart(null)
         setTouchMove(null)
-        touchEndVait = vait.timeout(382).then(() => {
+        touchEndV = vait.timeout(382).then(() => {
           setImageFrameTransition(false)
         })
       }
     }
 
-    el.addEventListener('touchstart', touchStartHandler)
-    el.addEventListener('touchmove', touchMoveHandler)
-    el.addEventListener('touchend', touchEndHandler)
-    return () => {
-      el.removeEventListener('touchstart', touchStartHandler)
-      el.removeEventListener('touchmove', touchMoveHandler)
-      el.removeEventListener('touchend', touchEndHandler)
+    if (imageFrameEl.current) {
+      const { current: el } = imageFrameEl
 
-      if (touchEndVait) touchEndVait.clear()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [onCancel, imageFrameEl.current, touchStart, touchMove])
+      el.addEventListener('touchstart', touchStartHandler)
+      el.addEventListener('touchmove', touchMoveHandler)
+      el.addEventListener('touchend', touchEndHandler)
+      return () => {
+        el.removeEventListener('touchstart', touchStartHandler)
+        el.removeEventListener('touchmove', touchMoveHandler)
+        el.removeEventListener('touchend', touchEndHandler)
 
-  useEffect(() => {
-    if (!detailFrameEl.current) {
-      return
-    }
-
-    const { current: el } = detailFrameEl
-    const touchMoveHandler = (e) => {
-      if (detail) {
-        e.preventDefault()
-        e.stopPropagation()
+        if (touchEndV) touchEndV.clear()
       }
     }
-    el.addEventListener('touchmove', touchMoveHandler)
+    // isShow 控制着 imageFrameEl.current
+    // 也就是说 isShow = true 的时候 imageFrameEl.current 才不至于是 null
+  }, [isShow, onCancel, touchStart, touchMove])
 
-    return () => {
-      el.removeEventListener('touchmove', touchMoveHandler)
+  useEffect(() => {
+    if (detailFrameEl.current) {
+      const { current: el } = detailFrameEl
+      const touchMoveHandler: HTMLDivElement['ontouchmove'] = (e) => {
+        if (detail) {
+          e.preventDefault()
+          e.stopPropagation()
+        }
+      }
+      el.addEventListener('touchmove', touchMoveHandler)
+
+      return () => {
+        el.removeEventListener('touchmove', touchMoveHandler)
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail, detailFrameEl.current])
+    // isShow 控制着 detailFrameEl.current
+    // 也就是说 isShow = true 的时候 detailFrameEl.current 才不至于是 null
+  }, [isShow, detail])
 
   useDisableScroll(Boolean(detail))
-
-  const handleClickFrame = (e) => {
-    onCancel()
-  }
 
   if (!isShow) {
     return null
   }
 
-  const pos = {
+  const pos: OptProperties<ImagePos & { transform: string }> = {
     ...(toPos || fromPos || {})
   }
-
   if (touchStart && touchMove) {
-    // const x = touchMove.x - touchStart.x
-    const x = 0
-    let y = touchMove.y - touchStart.y
-
-    const totalLength = window.innerHeight - (touchMove.y)
-    let b = y / totalLength
-    // console.log('y', y, b)
-
-    if (b > 1) {
-      console.error('bbbbbbbb')
-      b = 1
-    }
-
-    y = b * 100
-
-    pos.transform = `translate(${x}px, ${y}px)`
+    const dPos = calcTouchDragPos(touchStart, touchMove)
+    pos.transform = `translate(${dPos.x}px, ${dPos.y}px)`
   }
 
   return (
     <div
       ref={detailFrameEl}
       className="detail-frame"
-      onClick={handleClickFrame}
+      onClick={() => {
+        onCancel()
+      }}
     >
       <div className="bgMask" style={{ opacity }}></div>
       <div
