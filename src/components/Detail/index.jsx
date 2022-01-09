@@ -7,7 +7,10 @@ import './style.scss'
 const getCenter = (totalLength, length) => (totalLength / 2) - (length / 2)
 
 const IMAGE_PADDING = 50
-const calcImageFullScreenPos = ({ width: imgW, height: imgH }, GLOBAL = window) => {
+const calcImageFullScreenPos = (
+  { width: imgW, height: imgH },
+  GLOBAL = window
+) => {
   const { innerWidth, innerHeight } = GLOBAL
   const imageProportion = imgH / imgW
 
@@ -24,12 +27,11 @@ const calcImageFullScreenPos = ({ width: imgW, height: imgH }, GLOBAL = window) 
       top: IMAGE_PADDING,
       left: getCenter(innerWidth, width),
       width,
-      height
+      height,
     }
   } else {
     // 缩放的图的高度小于等于窗口高度
     console.error('<=', newImgH, innerHeight)
-    
 
     if (newImgH / innerHeight > 0.80) {
       // 图片是否较长，是的话就适当留空白
@@ -54,44 +56,34 @@ const calcImageFullScreenPos = ({ width: imgW, height: imgH }, GLOBAL = window) 
   }
 }
 
-export default ({
-  detail,
-  onCancel = () => undefined
-}) => {
+export default ({ detail, onCancel = () => undefined }) => {
   const detailFrameEl = useRef(null)
   const imageFrameEl = useRef(null)
   const [touchStart, setTouchStart] = useState(null)
   const [touchMove, setTouchMove] = useState(null)
 
   const [isShow, setIsShow] = useState(false)
-  const [opacity, setOpacity] = useState(1)
+  const [opacity, setOpacity] = useState(0)
 
   const [sourceUrl, setSourceUrl] = useState('')
   const [thumbUrl, setThumbUrl] = useState('')
   const [fromPos, setFromPos] = useState(null)
   const [toPos, setToPos] = useState(null)
-  const [imageFrameTransition, setImageFrameTransition] = useState(false)
+  const [imageFrameTransition, setImageFrameTransition] = useState(true)
 
   useEffect(() => {
     if (detail) {
-      setIsShow(true)
-      // setOpacity(1)
-
+      setImageFrameTransition(true)
       setThumbUrl(detail.from.thumb)
       setSourceUrl(detail.src)
-
       const { top, left, width, height } = detail.from
-      // setImageFrameTransition(false)
       setFromPos({
         top,
         left,
         width,
         height,
       })
-
-      // return () => {
-      //   setOpacity(0)
-      // }
+      setIsShow(true)
     } else {
       setImageFrameTransition(true)
       setToPos(null)
@@ -102,52 +94,56 @@ export default ({
       let firstV = vait.timeout(382)
       let secondV
 
-      firstV.then(() => {
-        setThumbUrl('')
-        setSourceUrl('')
-        setFromPos(null)
-        setToPos(null)
-        setImageFrameTransition(false)
+      firstV
+        .then(() => {
+          setThumbUrl('')
+          setSourceUrl('')
+          setFromPos(null)
+          setToPos(null)
+          setImageFrameTransition(false)
 
-        secondV = vait.timeout(382)
-        return secondV
-      }).then(() => {
-        setIsShow(false)
-      })
+          secondV = vait.timeout(382)
+          return secondV
+        })
+        .then(() => {
+          setIsShow(false)
+        })
 
       return () => {
-        setOpacity(1)
-        firstV && firstV.clear()
-        secondV && secondV.clear()
+        if (firstV) firstV.clear()
+        if (secondV) secondV.clear()
       }
     }
   }, [detail])
 
   useEffect(() => {
-    if (!fromPos) {
-      return
-    }
+    let fadeInV, nextTickV
+    if (isShow && fromPos && detail && imageFrameTransition) {
+      window.requestAnimationFrame(() => {
+        nextTickV = vait.nextTick()
+        nextTickV.then(() => {
+          setOpacity(1)
+          setToPos({
+            ...calcImageFullScreenPos({
+              width: detail.width,
+              height: detail.height,
+            }),
+          })
 
-    let timingV
-
-    window.requestAnimationFrame(() => {
-      setImageFrameTransition(true)
-      setToPos({
-        ...calcImageFullScreenPos({
-          width: detail.width,
-          height: detail.height
+          fadeInV = vait.timeout(382)
+          fadeInV.then(() => {
+            setImageFrameTransition(false)
+          })
         })
       })
-      timingV = vait.timeout(382)
-      timingV.then(() => {
-        setImageFrameTransition(false)
-      })
-    })
 
-    return () => {
-      timingV && timingV.clear()
+      return () => {
+        setImageFrameTransition(false)
+        if (fadeInV) fadeInV.clear()
+        if (nextTickV) nextTickV.clear()
+      }
     }
-  }, [fromPos])
+  }, [isShow, detail, fromPos, imageFrameTransition])
 
   useEffect(() => {
     const resizeHandle = () => {
@@ -157,19 +153,21 @@ export default ({
       }
 
       setImageFrameTransition(true)
-      setToPos({
-        ...calcImageFullScreenPos({
-          width: detail.width,
-          height: detail.height
+      if (detail) {
+        setToPos({
+          ...calcImageFullScreenPos({
+            width: detail.width,
+            height: detail.height,
+          }),
         })
-      })
+      }
     }
     window.addEventListener('resize', resizeHandle)
 
     return () => {
       window.removeEventListener('resize', resizeHandle)
     }
-  }, [fromPos])
+  }, [detail, fromPos])
 
   useEffect(() => {
     if (!imageFrameEl.current) {
@@ -189,10 +187,10 @@ export default ({
       e.preventDefault()
 
       const touch = touches[0]
-      
+
       setTouchStart({
         x: touch.clientX,
-        y: touch.clientY
+        y: touch.clientY,
       })
     }
     const touchMoveHandler = (e) => {
@@ -259,9 +257,10 @@ export default ({
       el.removeEventListener('touchmove', touchMoveHandler)
       el.removeEventListener('touchend', touchEndHandler)
 
-      touchEndVait && touchEndVait.clear()
+      if (touchEndVait) touchEndVait.clear()
     }
-  }, [imageFrameEl.current, touchStart, touchMove])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onCancel, imageFrameEl.current, touchStart, touchMove])
 
   useEffect(() => {
     if (!detailFrameEl.current) {
@@ -280,6 +279,7 @@ export default ({
     return () => {
       el.removeEventListener('touchmove', touchMoveHandler)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail, detailFrameEl.current])
 
   useDisableScroll(Boolean(detail))
