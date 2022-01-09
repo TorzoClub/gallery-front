@@ -12,8 +12,8 @@ export default () => {
 
   useEffect(() => {
     let i = 0
-    let latestTime = null
-    const frame = time => {
+    let latestTime: null | number = null
+    const frame = (time: number) => {
       if (latestTime === null) {
         latestTime = time
       }
