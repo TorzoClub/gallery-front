@@ -1,0 +1,189 @@
+$AnimationDuration: 800;
+$BodyDelayTiming: 300;
+
+$TotalAnimationDuration: $AnimationDuration + $BodyDelayTiming;
+$BGGradientEdgeWidth: 20px;
+
+:export {
+  TotalAnimationDuration: $TotalAnimationDuration;
+  AnimationDuration: $AnimationDuration;
+  BodyDelayTiming: $BodyDelayTiming;
+}
+
+@keyframes DialogLayoutFadeOut {
+  from {
+    background-color: rgba(0, 0, 0, 0.182);
+  }
+
+  to {
+    background-color: transparent;
+  }
+}
+
+@keyframes DialogLayoutBGFadeOut {
+  from {
+    transform: translateX(calc(0vw - #{$BGGradientEdgeWidth}));
+  }
+
+  to {
+    transform: translateX(calc(100vw + #{$BGGradientEdgeWidth}));
+  }
+}
+
+@keyframes DialogLayoutBodyFadeOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(1em);
+  }
+}
+
+@keyframes DialogLayoutFadeIn {
+  from {
+    background-color: transparent;
+  }
+
+  to {
+    background-color: rgba(0, 0, 0, 0.182);
+  }
+}
+
+@keyframes DialogLayoutBGFadeIn {
+  from {
+    transform: translateX(calc(-100vw - #{$BGGradientEdgeWidth}));
+  }
+
+  to {
+    transform: translateX(calc(0vw - #{$BGGradientEdgeWidth}));
+  }
+}
+
+@keyframes DialogLayoutBodyFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-1em);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.fullscreen-layout-wrapper {
+  z-index: 10000;
+
+  background-color: rgba(0, 0, 0, 0.182);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+
+  &.exited {
+    display: none;
+
+    .fullscreen-layout {
+      .fs-body {
+        opacity: 0;
+        transform: translateX(1em);
+      }
+    }
+  }
+  &.exiting {
+    animation-name: DialogLayoutFadeOut;
+    animation-duration: #{$AnimationDuration}ms;
+    animation-fill-mode: forwards;
+
+    .fullscreen-layout {
+      .bg {
+        animation-name: DialogLayoutBGFadeOut;
+        animation-duration: #{$AnimationDuration}ms;
+        animation-fill-mode: forwards;
+      }
+
+      .fs-body {
+        animation-name: DialogLayoutBodyFadeOut;
+        // animation-delay: 300ms;
+        animation-duration: #{$AnimationDuration - 300}ms;
+        animation-fill-mode: forwards;
+
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+  }
+  &.entered {
+    .fullscreen-layout {
+      .bg {
+        transform: translateX(calc(0vw - #{$BGGradientEdgeWidth}));
+      }
+
+      .fs-body {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+  }
+  &.entering {
+    animation-name: DialogLayoutFadeIn;
+    animation-duration: #{$AnimationDuration}ms;
+
+    .fullscreen-layout {
+      .bg {
+        animation-name: DialogLayoutBGFadeIn;
+        animation-duration: #{$AnimationDuration}ms;
+        animation-fill-mode: forwards;
+      }
+
+      .fs-body {
+        animation-name: DialogLayoutBodyFadeIn;
+        animation-delay: 300ms;
+        animation-duration: #{$AnimationDuration - 300}ms;
+        animation-fill-mode: forwards;
+
+        opacity: 0;
+        transform: translateX(-1em);
+      }
+    }
+  }
+}
+
+.fullscreen-layout-wrapper .fullscreen-layout {
+  position: relative;
+  width: 100%;
+
+  .bg {
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    height: 100%;
+    width: calc(100vw + #{$BGGradientEdgeWidth} * 2);
+
+    background: linear-gradient(to right, transparent 0px, white #{$BGGradientEdgeWidth}, white calc(100vw + (#{$BGGradientEdgeWidth} * 2) - #{$BGGradientEdgeWidth}), transparent);
+  }
+
+  .fs-body {
+    width: 100%;
+    padding: 20px 0;
+
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    flex-direction: column;
+
+    box-shadow: 0 0px 10px grey;
+    overflow: hidden;
+  }
+}
