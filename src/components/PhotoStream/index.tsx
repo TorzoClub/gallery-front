@@ -1,9 +1,8 @@
-import React, { CSSProperties, useContext, useMemo } from 'react'
+import React, { CSSProperties, useMemo } from 'react'
 
 import './index.scss'
 
 import PhotoBox from 'components/PhotoBox'
-import HomeContext from 'layouts/GalleryHome/context'
 import loadThumb from 'utils/load-thumb'
 import { Gallery, Photo } from 'api/photo'
 import { PhotoStreamState } from 'components/Gallery'
@@ -53,11 +52,10 @@ export type Props = {
     top: number
     left: number
   }, photo: Photo['id']): void
+
+  selectedIdList: number[]
 }
 export default (props: Props) => {
-  const context = useContext(HomeContext)
-  const { selectedIdList } = context
-
   const {
     hideVoteButton,
     gallery,
@@ -65,7 +63,8 @@ export default (props: Props) => {
     column_count,
     photos,
     total_width,
-    gutter = '0px'
+    gutter = '0px',
+    selectedIdList
   } = props
 
   const columns = useMemo(() => {

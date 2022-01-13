@@ -19,7 +19,7 @@ type Opts = Parameters<typeof axiosInst.request>[0]
 export class RequestError extends Error {
   constructor(
     public message: string,
-    public code: number,
+    public status: number,
     private opts: Opts,
     public isSilent: boolean = false,
     public description: string = ''

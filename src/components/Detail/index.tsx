@@ -91,7 +91,7 @@ export type Detail = {
   src: string
   height: number
   width: number
-}
+} | null
 export default ({ detail, onCancel = () => undefined }: {
   detail: Detail
   onCancel: () => void

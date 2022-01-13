@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import './index.scss'
 
 import Title from 'components/Title'
 import PhotoStream from 'components/PhotoStream'
-import HomeContext from 'layouts/GalleryHome/context'
+import { Gallery, Photo } from 'api/photo'
 
 export type PhotoStreamState = {
   screen: 'normal' | 'mobile'
@@ -37,9 +37,20 @@ const getPhotoStreamState = (): PhotoStreamState => {
   }
 }
 
-export default (props) => {
+export type Props = {
+  hideVoteButton: boolean
+  gallery: Gallery
+  selectedIdList: number[]
+  onClickVote?: (photo_id: Photo['id']) => void
+  onClickCover: (fromInfo: {
+    height: number
+    width: number
+    top: number
+    left: number
+  }, photo: Photo['id']) => void
+}
+export default (props: Props) => {
   const [state, setState] = useState(getPhotoStreamState())
-  const context = useContext(HomeContext)
 
   useEffect(() => {
     let lastWidth: number
@@ -60,7 +71,7 @@ export default (props) => {
   }, [])
 
   const { screen, column_count, gallery_width, column_gutter } = state
-  const { hideVoteButton, gallery, toDetail } = props
+  const { hideVoteButton, gallery } = props
 
   return (
     <div className="gallery">
@@ -74,30 +85,12 @@ export default (props) => {
         gallery={gallery}
         photos={gallery.photos}
         gutter={column_gutter}
+        selectedIdList={props.selectedIdList}
 
         onClickVote={(photoId) => {
-          const idx = gallery.photos.map(p => p.id).indexOf(photoId)
-          if (idx === -1) return
-          const photo = gallery.photos[idx]
-
-          context.handleClickVote(gallery, photo)
+          if (props.onClickVote) props.onClickVote(photoId)
         }}
-        onClickCover={(fromInfo, photoId) => {
-          const idx = gallery.photos.map(p => p.id).indexOf(photoId)
-          if (idx === -1) return
-          const photo = gallery.photos[idx]
-
-          // updateListItemById
-          if (context.toDetail) context.toDetail({
-            from: {
-              ...fromInfo,
-            },
-            thumb: photo.thumb,
-            src: photo.src,
-            height: photo.height,
-            width: photo.width
-          })
-        }}
+        onClickCover={props.onClickCover}
       />
     </div>
   )

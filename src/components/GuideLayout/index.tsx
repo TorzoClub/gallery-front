@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, ReactChildren } from 'react'
+import React, { useRef, useEffect, useState, ReactNode } from 'react'
 
 import s from './index.module.scss'
 
@@ -10,7 +10,7 @@ function getWindowHeight() {
 export default ({ showArrow = true, animatedTickTock, children }: {
   showArrow: boolean;
   animatedTickTock: string | number;
-  children: ReactChildren
+  children: ReactNode
 }) => {
   const WrapperEl = useRef<HTMLDivElement>(null)
   const [pos, setPos] = useState<'below' | 'above' | null>(null)

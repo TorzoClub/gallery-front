@@ -23,6 +23,8 @@ type PhotoCommon = {
   vote_count: number
   desc: string
 
+  is_voted: boolean
+
   height: number
   width: number
   src: string
@@ -43,6 +45,10 @@ type GalleryCommon = {
   created_at: DateTimeString
   index: number
   name: string
+
+  vote_expire: DateTimeString
+  vote_limit: number
+  vote_submitted: boolean
 }
 export type GalleryNormal = GalleryCommon & {
   photos: PhotoNormal[]
@@ -54,15 +60,20 @@ export type GalleryInActive = GalleryCommon & {
 }
 export type Gallery = GalleryInActive | GalleryNormal
 
-export const fetchList = () => request<{
-  active: GalleryInActive
-  galleries: GalleryNormal
-}>({
+export type fetchListResult = {
+  active: GalleryInActive | null
+  galleries: GalleryNormal[]
+}
+export const fetchList = () => request<fetchListResult>({
   method: 'GET',
   url: 'photo/'
 })
 
-export const fetchListWithQQNum = (qq_num: string) => request({
+export type fetchListWithQQNumResult = {
+  active: GalleryInActive | null
+  galleries: GalleryNormal[]
+}
+export const fetchListWithQQNum = (qq_num: number) => request<fetchListWithQQNumResult>({
   method: 'POST',
   url: 'member/photo',
   data: { qq_num }
@@ -75,7 +86,7 @@ export const vote = ({
 }: {
   gallery_id: number
   photo_id_list: number[]
-  qq_num: string
+  qq_num: number
 }) => request({
   method: 'POST',
   url: 'member/vote',
