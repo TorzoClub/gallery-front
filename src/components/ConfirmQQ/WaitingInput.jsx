@@ -15,7 +15,11 @@ export default ({
   const [value, setValue] = useState('')
 
   useEffect(() => {
-    inputEl.current.style.width = `${frontEl.current.offsetWidth}px`
+    if (frontEl.current.scrollWidth === 0) {
+      inputEl.current.style.width = '100%'
+    } else {
+      inputEl.current.style.width = `${frontEl.current.scrollWidth}px`
+    }
   })
 
   useEffect(() => {
@@ -25,10 +29,6 @@ export default ({
       inputEl.current.blur()
     }
   }, [isFocus])
-
-  // const inputNode = (
-    
-  // )
 
   return (
     <div className={`wrapper ${isFailure ? 'failure' : ''}`}>
@@ -142,7 +142,6 @@ export default ({
           box-sizing: border-box;
           padding: 0 0.5em;
           margin: auto;
-          width: 12em;
 
           white-space: pre;
           outline: none;
@@ -169,6 +168,8 @@ export default ({
           border-bottom: solid 1px rgba(0, 0, 0, 0.2);
 
           position: relative;
+          display: flex;
+          justify-content: center;
         }
 
         @keyframes shine{
