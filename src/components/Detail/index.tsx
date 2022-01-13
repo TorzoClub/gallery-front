@@ -85,14 +85,15 @@ const calcImageFullScreenPos = (
   }
 }
 
+export type Detail = {
+  from: ImagePos
+  thumb: string
+  src: string
+  height: number
+  width: number
+}
 export default ({ detail, onCancel = () => undefined }: {
-  detail: {
-    from: ImagePos
-    thumb: string
-    src: string
-    height: number
-    width: number
-  }
+  detail: Detail
   onCancel: () => void
 }) => {
   const [isShow, setIsShow] = useState(false)

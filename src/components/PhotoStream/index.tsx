@@ -5,23 +5,11 @@ import './index.scss'
 import PhotoBox from 'components/PhotoBox'
 import HomeContext from 'layouts/GalleryHome/context'
 import loadThumb from 'utils/load-thumb'
+import { Gallery, Photo } from 'api/photo'
+import { PhotoStreamState } from 'components/Gallery'
 
 const SAME_HEIGHT = 100
 
-type Photo = {
-  id: number
-  height: number
-  width: number
-  src: string
-  thumb: string
-
-  member: {
-    id: number
-    avatar_thumb: string
-    avatar_src: string
-    name: string
-  } | null
-}
 type ColumnsHeightList = number[]
 
 const witchHeightIsMinimum = (columns: ColumnsHeightList) =>
@@ -49,7 +37,24 @@ const createColumns = (column_count: number, photos: Photo[]) => {
   return columns
 }
 
-export default (props) => {
+export type Props = {
+  hideVoteButton: boolean
+  gallery: Gallery
+  screen: PhotoStreamState['screen']
+  gutter: PhotoStreamState['column_gutter']
+  column_count: PhotoStreamState['column_count']
+  total_width: PhotoStreamState['gallery_width']
+
+  photos: Photo[]
+  onClickVote(photo_id: Photo['id']): void
+  onClickCover(fromInfo: {
+    height: number
+    width: number
+    top: number
+    left: number
+  }, photo: Photo['id']): void
+}
+export default (props: Props) => {
   const context = useContext(HomeContext)
   const { selectedIdList } = context
 
@@ -131,18 +136,10 @@ export default (props) => {
                   } : null}
 
                   handleClickVote={() => {
-                    context.handleClickVote(gallery, photo)
+                    props.onClickVote(photo.id)
                   }}
                   onClickCover={(fromInfo) => {
-                    if (context.toDetail) context.toDetail({
-                      from: {
-                        ...fromInfo,
-                      },
-                      thumb: photo.thumb,
-                      src: photo.src,
-                      height: photo.height,
-                      width: photo.width
-                    })
+                    props.onClickCover(fromInfo, photo.id)
                   }}
                 />
               ))
