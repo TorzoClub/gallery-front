@@ -13,7 +13,7 @@ export type Props = {
 }
 
 export default (props: Props) => {
-  const inputPromptEl = useRef(null)
+  const layoutEl = useRef(null)
   const bgEl = useRef(null)
   const bodyEl = useRef(null)
 
@@ -25,7 +25,7 @@ export default (props: Props) => {
     <Transition in={Boolean(inProp)} timeout={TotalAnimationDuration}>
       {state => (
         <div className={`fullscreen-layout-wrapper ${state}`} onClick={() => onClickAnyWhere && onClickAnyWhere()}>
-          <div className="fullscreen-layout" ref={inputPromptEl}>
+          <div className="fullscreen-layout" ref={layoutEl}>
             <div className="bg" ref={bgEl}></div>
             <div className="fs-body" ref={bodyEl}>
               {props.children}
