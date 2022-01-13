@@ -1,0 +1,26 @@
+.anywhere {
+  color: rgba(48, 103, 133, 0.382);
+  margin-top: 28px;
+  font-size: .9em;
+}
+
+.isDone {
+  color: rgb(48, 103, 133);
+  font-weight: 600;
+  line-height: 20px;
+  display: flex;
+  align-content: center;
+  align-items: center;
+
+  height: 36px;
+}
+
+.submitBtn {
+  margin: 0 6px;
+  width: 32px;
+  height: 32px;
+}
+
+.submitBtn :global(.text-label) {
+  font-size: 12px;
+}
