@@ -58,6 +58,9 @@ $avatar-size-mobile: 36px;
     width: 100%;
     height: 200px;
     position: relative;
+
+    cursor: pointer;
+
     // background-color: hsl(0, 0%, 75%);
 
     border-top-left-radius: $image-box-border-radius;

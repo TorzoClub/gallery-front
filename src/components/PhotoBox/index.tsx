@@ -1,33 +1,56 @@
-import React, { useState, useContext, useEffect, useRef } from 'react'
-
-import style from './index.scss'
-
+import React, { useState, useEffect, useRef, CSSProperties } from 'react'
 import heartIMG from 'assets/heart.png'
 import heartHighlightIMG from 'assets/heart-highlight.png'
-
-import HomeContext from 'layouts/GalleryHome/context'
+import style from './index.scss'
 
 import loadThumb from 'utils/load-thumb'
 
-export default (props) => {
-  const context = useContext(HomeContext)
+export type ImageInfo = {
+  width: number
+  height: number
+  src_thumb: string
+  src: string
+}
+
+export type Props = {
+  screen: string
+  gutter: CSSProperties['width']
+  boxWidth: string
+
+  hideVoteButton: boolean
+  hideMember: boolean
+  voteIsHighlight: boolean
+
+  name: string | null
+  photo: ImageInfo
+  avatar: ImageInfo | null
+
+  handleClickVote(): void
+  onClickCover(fromInfo: {
+    height: number
+    width: number
+    top: number
+    left: number
+  }): void
+}
+
+export default (props: Props) => {
+  const { screen, gutter, boxWidth, photo, hideMember, avatar } = props
+
   const [loaded, setLoaded] = useState(false)
   const [thumb, setThumb] = useState('')
   const [avatarThumb, setAvatarThumb] = useState('')
-  const coverFrameEl = useRef(null)
+  const coverFrameEl = useRef<HTMLDivElement>(null)
 
-  const { screen, gutter, gallery, photo } = props
-  const { member } = photo
-
-  const ratio = (props.height / props.width).toFixed(4)
+  const ratio = (photo.height / photo.width).toFixed(4)
 
   const isMobile = screen === 'mobile'
 
-  let height
+  let height: CSSProperties['height']
   if (isMobile) {
-    height = `calc((${props.boxWidth} - ${gutter} / 2) * ${ratio})`
+    height = `calc((${boxWidth} - ${gutter} / 2) * ${ratio})`
   } else {
-    height = `calc((${props.boxWidth} - ${style['avatar-size']} / 2) * ${ratio})`
+    height = `calc((${boxWidth} - ${style['avatar-size']} / 2) * ${ratio})`
   }
 
   const coverFrameStyle = {
@@ -35,44 +58,37 @@ export default (props) => {
     background: loaded ? 'white' : ''
   }
 
-  const { selectedIdList } = context
-  const isHighlight = selectedIdList && (selectedIdList.indexOf(photo.id) !== -1)
-
   useEffect(() => {
-    if (member && member.avatar_thumb) {
-      loadThumb(member.avatar_thumb).then(setAvatarThumb)
+    if (avatar) {
+      loadThumb(avatar.src_thumb).then(setAvatarThumb)
     }
-    loadThumb(photo.thumb).then(setThumb)
-  }, [member, photo.thumb])
-  // member && member.avatar_thumb, photo.thumb
-
-  const isHideMember = !member
+    loadThumb(photo.src_thumb).then(setThumb)
+  }, [avatar, photo.src_thumb])
 
   return (
     <div className={`image-box-wrapper ${screen}`}>
       <div className="image-box">
         <div
-          className={`cover-area ${isHideMember ? 'front-index bottom-radius bottom-shadow' : ''}`}
+          className={`cover-area ${hideMember ? 'front-index bottom-radius bottom-shadow' : ''}`}
           ref={coverFrameEl}
           style={coverFrameStyle}
           onClick={async () => {
+            if (!coverFrameEl.current) {
+              return
+            }
+
             const {
               height: fromHeight,
               width: fromWidth,
               top: fromTop,
               left: fromLeft
             } = coverFrameEl.current.getBoundingClientRect()
-            if (context.toDetail) context.toDetail({
-              from: {
-                height: fromHeight,
-                width: fromWidth,
-                top: fromTop,
-                left: fromLeft,
-              },
-              thumb,
-              src: photo.src,
-              height: photo.height,
-              width: photo.width
+
+            props.onClickCover({
+              height: fromHeight,
+              width: fromWidth,
+              top: fromTop,
+              left: fromLeft,
             })
           }}
         >
@@ -91,7 +107,7 @@ export default (props) => {
 
         <div className="bottom-area">
           {
-            isHideMember || (
+            hideMember || (
               <div className="bottom-block">
                 <div className="avatar-wrapper">
                   <div className="avatar">
@@ -99,7 +115,7 @@ export default (props) => {
                   </div>
                 </div>
 
-                <div className="member-name"><div className="avatar-float"></div><span className="name-label">{member.name}</span></div>
+                <div className="member-name"><div className="avatar-float"></div><span className="name-label">{props.name}</span></div>
               </div>
             )
           }
@@ -112,10 +128,10 @@ export default (props) => {
                     e.preventDefault()
                     e.stopPropagation()
 
-                    context.handleClickVote(gallery, photo)
+                    props.handleClickVote()
                   }}>
                     {
-                      isHighlight ?
+                      props.voteIsHighlight ?
                         <div className="block highlight">
                           <div className="heart" style={{ backgroundImage: `url(${heartHighlightIMG})` }} />
                         </div>
