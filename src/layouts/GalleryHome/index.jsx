@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 
 import vait from 'vait'
 
@@ -24,7 +24,7 @@ import { updateListItemById } from '../../utils/common'
 
 const useStateObject = (initObj) => {
   const [obj, setObj] = useState(initObj)
-  
+
   let newObj = { ...obj }
   return [obj, (appendObj) => {
     newObj = { ...obj, ...newObj, ...appendObj }
@@ -93,7 +93,7 @@ function ActivityLayout({
         }
 
         const { id } = photo
-  
+
         let newSelectedIdList = [...selectedIdList]
 
         const idx = newSelectedIdList.indexOf(id)
@@ -177,9 +177,9 @@ export default (props) => {
   const [hideVoteButton, setHideVoteButton] = useState(true)
 
   const [selectedIdList, setSelectedIdList] = useState([])
-  
+
   const [submiting, setSubmiting] = useState(false)
-  
+
   const [active, _setActive] = useState(null)
   const [list, setList] = useState([])
 
@@ -196,13 +196,7 @@ export default (props) => {
     isFailure: null,
     disableInput: false
   })
-
-  const [confirmVoteState, setConfirmVoteState] = useStateObject({
-    in: false,
-    isDone: false,
-    isLoading: false,
-    isFailure: null,
-  })
+  const [showConfirmVoteLayout, setShowConfirmVoteLayout] = useState(false)
 
   const setActive = useCallback((newValue) => {
     if (active) {
@@ -264,7 +258,7 @@ export default (props) => {
 
             setConfirmState({ in: false })
             vait.timeout(618).then(() => {
-              setConfirmVoteState({ in: true })
+              setShowConfirmVoteLayout(true)
             })
           }).catch(err => {
             alert(`获取投票信息失败: ${err.message}`)
@@ -274,27 +268,21 @@ export default (props) => {
     }).catch(err => {
       alert(`获取相册信息失败: ${err.message}`)
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentQQNum])
 
-  const ConfirmVoteLayout = (
+  const ConfirmVoteLayout = useMemo(() => (
     <ConfirmVote
-      {...confirmVoteState}
-      handleInputChange={() => {
-        setConfirmVoteState({
-          isFailure: null
-        })
-      }}
+      in={showConfirmVoteLayout}
       handleClickAnyWhere={() => {
-        setConfirmVoteState({
-          in: false
-        })
+        setShowConfirmVoteLayout(false)
         vait.timeout(618).then(() => {
           setHideVoteButton(false)
           setShowArrow(true)
         })
       }}
     />
-  )
+  ), [showConfirmVoteLayout])
 
   const ConfirmQQLayout = (
     <ConfirmQQ
@@ -335,7 +323,7 @@ export default (props) => {
         return setConfirmState({
           in: true,
           isLoading: false,
-          isFailure: false
+          isFailure: null
         })
       } else {
         await vote({
@@ -364,7 +352,7 @@ export default (props) => {
 
   return (
     <>
-      <div className={`gallery-home`} style={{ minHeight: '100vh' }}>
+      <div className={'gallery-home'} style={{ minHeight: '100vh' }}>
         {
           !loaded ? (
             <LoadingLayout />
@@ -384,7 +372,7 @@ export default (props) => {
 
                   toDetail: (detail) => setImageDetail(detail),
                   onClickSubmit: () => handleClickSubmit(),
-                }}/>
+                }} />
               )}
 
               {/* {normalPhotos} */}
