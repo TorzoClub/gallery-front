@@ -6,7 +6,7 @@ export default () => {
     <>
       <div className={s.root}>
         {/* eslint-disable-next-line no-irregular-whitespace */}
-        <div className={s.title}>須{`　`}知</div>
+        <div className={s.title}>須　知</div>
 
         <div className={s.middle}>
           <p style={{ textAlign: 'center' }}>感谢参与投票环节</p>
