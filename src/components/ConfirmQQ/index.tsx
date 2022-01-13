@@ -1,14 +1,24 @@
-import React, { useEffect, useMemo, useRef } from 'react'
-import { Transition } from 'react-transition-group';
+import React, { useMemo } from 'react'
+import './index.scss'
 
-import Loading from 'components/Loading'
-import SubmitButton from 'components/SubmitButton'
+import DialogLayout, { Props as DialogLayoutProps } from 'components/DialogLayout'
+
 import Article from './Article'
 import WaitingInputFrame from './WaitingInputFrame'
-import './index.scss'
-import DialogLayout from 'components/DialogLayout'
+import Loading from 'components/Loading'
+import SubmitButton from 'components/SubmitButton'
 
-export default (props) => {
+export type Props = Pick<DialogLayoutProps, 'in'> & {
+  isLoading: boolean
+  disabled: boolean
+  isDone: boolean
+  isFailure: Error | null
+
+  handleInputChange: (s: string) => void
+  handlesubmitDetect: (s: string) => void
+}
+
+export default (props: Props) => {
   const { in: inProp, isDone, isFailure } = props
 
   const wifNode = useMemo(() => {
