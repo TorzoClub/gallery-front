@@ -7,6 +7,8 @@ import globalLoad from 'utils/queue-load'
 import { Gallery, Photo } from 'api/photo'
 import { PhotoStreamState } from 'components/Gallery'
 
+import PhotoBoxStyle from '../PhotoBox/index.scss'
+
 const SAME_HEIGHT = 100
 
 type ColumnsHeightList = number[]
@@ -88,11 +90,20 @@ export default (props: Props) => {
     boxWidth = `(${total_width} / ${column_count})`
   }
 
+  const HorizontalOffset: CSSProperties['width'] = useMemo(() => {
+    if (screen === 'normal') {
+      return `calc(${PhotoBoxStyle['avatar-size']} / 2)`
+    } else {
+      return '0px'
+    }
+  }, [screen])
+
   return (
     <div
       className={`photo-stream ${screen}`}
       style={{
-        width: photoStreamListWidth
+        width: photoStreamListWidth,
+        paddingRight: HorizontalOffset,
       }}
     >
       {

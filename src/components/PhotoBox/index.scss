@@ -12,8 +12,6 @@ $avatar-size-mobile: 36px;
   width: calc(100% - #{$avatar-size} / 2);
   padding-left: calc(#{$avatar-size} / 2);
 
-  // padding-top: 100px;
-
   &:not(:last-child) {
     margin-bottom: 24px;
   }
