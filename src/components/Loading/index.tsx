@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import style from './index.module.scss'
+
+const GeneratePlainLineList = () => [
+  0, 0, 0, 0,
+  0, 0, 0, 0,
+  0, 0, 0, 0
+]
+
 export default () => {
-  const [lineList, setLineList] = useState([
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0
-  ])
+  const [lineList, setLineList] = useState(GeneratePlainLineList())
 
   useEffect(() => {
     let i = 0
-    let latestTime = null
-    const frame = time => {
+    let latestTime: null | number = null
+    const frame = (time: number) => {
       if (latestTime === null) {
         latestTime = time
       }
@@ -22,14 +25,16 @@ export default () => {
         latestTime = time
       }
 
-      if (i >= lineList.length) {
-        i = 0
-      }
+      setLineList(lineList => {
+        if (i >= lineList.length) {
+          i = 0
+        }
 
-      const newLineList = [...lineList]
-      newLineList[i] = 1
-      setLineList(newLineList.map(v => v))
-      i += 1
+        const newLineList = GeneratePlainLineList()
+        newLineList[i] = 1
+        i += 1
+        return newLineList
+      })
 
       handler = requestAnimationFrame(frame)
     }

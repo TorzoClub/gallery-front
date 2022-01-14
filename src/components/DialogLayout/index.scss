@@ -1,19 +1,16 @@
-$animationDuration: 800;
-$promptBodyDelayTiming: 300;
+$AnimationDuration: 800;
+$BodyDelayTiming: 300;
 
-$totalAnimationDuration: $animationDuration + $promptBodyDelayTiming;
-$InputPromptHeight: 96px;
+$TotalAnimationDuration: $AnimationDuration + $BodyDelayTiming;
 $BGGradientEdgeWidth: 20px;
 
 :export {
-  totalAnimationDuration: $totalAnimationDuration
+  TotalAnimationDuration: $TotalAnimationDuration;
+  AnimationDuration: $AnimationDuration;
+  BodyDelayTiming: $BodyDelayTiming;
 }
 
-// .input-prompt-wrapper.entered {
-//
-// }
-
-@keyframes InputPromptFadeOut {
+@keyframes DialogLayoutFadeOut {
   from {
     background-color: rgba(0, 0, 0, 0.182);
   }
@@ -23,7 +20,7 @@ $BGGradientEdgeWidth: 20px;
   }
 }
 
-@keyframes InputPromptBGFadeOut {
+@keyframes DialogLayoutBGFadeOut {
   from {
     transform: translateX(calc(0vw - #{$BGGradientEdgeWidth}));
   }
@@ -33,7 +30,7 @@ $BGGradientEdgeWidth: 20px;
   }
 }
 
-@keyframes InputPromptBodyFadeOut {
+@keyframes DialogLayoutBodyFadeOut {
   from {
     opacity: 1;
     transform: translateX(0);
@@ -45,7 +42,7 @@ $BGGradientEdgeWidth: 20px;
   }
 }
 
-@keyframes InputPromptFadeIn {
+@keyframes DialogLayoutFadeIn {
   from {
     background-color: transparent;
   }
@@ -55,7 +52,7 @@ $BGGradientEdgeWidth: 20px;
   }
 }
 
-@keyframes InputPromptBGFadeIn {
+@keyframes DialogLayoutBGFadeIn {
   from {
     transform: translateX(calc(-100vw - #{$BGGradientEdgeWidth}));
   }
@@ -65,7 +62,7 @@ $BGGradientEdgeWidth: 20px;
   }
 }
 
-@keyframes InputPromptBodyFadeIn {
+@keyframes DialogLayoutBodyFadeIn {
   from {
     opacity: 0;
     transform: translateX(-1em);
@@ -77,7 +74,9 @@ $BGGradientEdgeWidth: 20px;
   }
 }
 
-.input-prompt-wrapper {
+.fullscreen-layout-wrapper {
+  z-index: 10000;
+
   background-color: rgba(0, 0, 0, 0.182);
   position: fixed;
   top: 0;
@@ -90,34 +89,32 @@ $BGGradientEdgeWidth: 20px;
   align-content: center;
   justify-content: center;
 
-  z-index: 1;
-
   &.exited {
     display: none;
 
-    .input-prompt {
-      .ip-body {
+    .fullscreen-layout {
+      .fs-body {
         opacity: 0;
         transform: translateX(1em);
       }
     }
   }
   &.exiting {
-    animation-name: InputPromptFadeOut;
-    animation-duration: #{$animationDuration}ms;
+    animation-name: DialogLayoutFadeOut;
+    animation-duration: #{$AnimationDuration}ms;
     animation-fill-mode: forwards;
 
-    .input-prompt {
+    .fullscreen-layout {
       .bg {
-        animation-name: InputPromptBGFadeOut;
-        animation-duration: #{$animationDuration}ms;
+        animation-name: DialogLayoutBGFadeOut;
+        animation-duration: #{$AnimationDuration}ms;
         animation-fill-mode: forwards;
       }
 
-      .ip-body {
-        animation-name: InputPromptBodyFadeOut;
+      .fs-body {
+        animation-name: DialogLayoutBodyFadeOut;
         // animation-delay: 300ms;
-        animation-duration: #{$animationDuration - 300}ms;
+        animation-duration: #{$AnimationDuration - 300}ms;
         animation-fill-mode: forwards;
 
         opacity: 1;
@@ -125,34 +122,33 @@ $BGGradientEdgeWidth: 20px;
       }
     }
   }
-
   &.entered {
-    .input-prompt {
+    .fullscreen-layout {
       .bg {
         transform: translateX(calc(0vw - #{$BGGradientEdgeWidth}));
       }
 
-      .ip-body {
+      .fs-body {
         opacity: 1;
         transform: translateX(0);
       }
     }
   }
   &.entering {
-    animation-name: InputPromptFadeIn;
-    animation-duration: #{$animationDuration}ms;
+    animation-name: DialogLayoutFadeIn;
+    animation-duration: #{$AnimationDuration}ms;
 
-    .input-prompt {
+    .fullscreen-layout {
       .bg {
-        animation-name: InputPromptBGFadeIn;
-        animation-duration: #{$animationDuration}ms;
+        animation-name: DialogLayoutBGFadeIn;
+        animation-duration: #{$AnimationDuration}ms;
         animation-fill-mode: forwards;
       }
 
-      .ip-body {
-        animation-name: InputPromptBodyFadeIn;
+      .fs-body {
+        animation-name: DialogLayoutBodyFadeIn;
         animation-delay: 300ms;
-        animation-duration: #{$animationDuration - 300}ms;
+        animation-duration: #{$AnimationDuration - 300}ms;
         animation-fill-mode: forwards;
 
         opacity: 0;
@@ -162,28 +158,24 @@ $BGGradientEdgeWidth: 20px;
   }
 }
 
-.input-prompt-wrapper .input-prompt {
+.fullscreen-layout-wrapper .fullscreen-layout {
   position: relative;
   width: 100%;
-  height: $InputPromptHeight;
 
   .bg {
     position: absolute;
     left: 0;
     top: 0;
-    // background-color: white;
-    height: $InputPromptHeight;
+
+    height: 100%;
     width: calc(100vw + #{$BGGradientEdgeWidth} * 2);
 
     background: linear-gradient(to right, transparent 0px, white #{$BGGradientEdgeWidth}, white calc(100vw + (#{$BGGradientEdgeWidth} * 2) - #{$BGGradientEdgeWidth}), transparent);
   }
 
-  .ip-body {
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: $InputPromptHeight;
+  .fs-body {
     width: 100%;
+    padding: 20px 0;
 
     display: flex;
     align-items: center;
@@ -191,24 +183,7 @@ $BGGradientEdgeWidth: 20px;
     justify-content: center;
     flex-direction: column;
 
-    .prompt-text {
-      line-height: 20px;
-    }
-
-    .loading-wrapper {
-      position: absolute;
-      left: 0;
-      top: 0;
-
-      width: 100%;
-      height: 100%;
-
-      display: flex;
-      align-items: center;
-      align-content: center;
-      justify-content: center;
-
-      background-color: rgba(255, 255, 255, 0.8);
-    }
+    box-shadow: 0 0px 10px grey;
+    overflow: hidden;
   }
 }

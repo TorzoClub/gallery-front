@@ -1,31 +1,27 @@
 {
   "name": "torzo-gallery",
-  "homepage": "https://pache.blog/torzo-gallery/",
-  "version": "0.1.0",
+  "homepage": "./",
+  "version": "1.0.0",
   "dependencies": {
-    "axios": "^0.21.1",
-    "babel-preset-mobx": "^2.0.0",
+    "axios": "^0.24.0",
     "blueimp-md5": "^2.10.0",
-    "mobx": "^5.9.4",
-    "mobx-react": "^5.4.4",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-router": "^5.0.0",
     "react-router-dom": "^5.0.0",
     "react-router-transition": "^1.3.0",
-    "react-scripts": "2.1.8",
+    "react-scripts": "^5.0.0",
     "react-transition-group": "^4.0.1",
     "styled-jsx": "^3.2.1",
     "vait": "^0.2.3"
   },
   "scripts": {
-    "start-old": "react-scripts start",
-    "start": "rescripts start",
-    "build-old": "react-scripts build",
-    "build": "rescripts build",
-    "test-old": "react-scripts test",
-    "test": "rescripts test",
-    "eject-old": "react-scripts eject"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "lint": "yarn eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint-strict": "yarn lint --max-warnings 0"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -38,9 +34,12 @@
   ],
   "devDependencies": {
     "@babel/plugin-proposal-do-expressions": "^7.5.0",
-    "@rescripts/cli": "^0.0.10",
-    "@rescripts/rescript-env": "^0.0.10",
-    "node-sass": "^4.13.1",
+    "@types/react": "^17.0.38",
+    "@types/react-dom": "^17.0.11",
+    "@types/react-transition-group": "^4.4.4",
+    "node-sass": "^7.0.1",
+    "sass": "^1.47.0",
+    "typescript": "^4.5.4",
     "vconsole": "^3.3.0"
   },
   "rescripts": [
