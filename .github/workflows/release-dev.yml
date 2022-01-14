@@ -1,0 +1,41 @@
+name: Release App with DEV
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches:
+      - dev
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build-app-dev:
+    name: Build App with development
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Use Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '16'
+
+    - name: Setup Python 2.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: '2.7'
+
+    - name: Copy Repo Files
+      uses: actions/checkout@v2
+
+    - name: code check
+      run: |
+        yarn install --production=false
+        yarn tsc --noEmit
+        yarn lint-strict
+
+    - name: Build App
+      env:
+        NODE_ENV: development
+      run: |
+        yarn install --production=false
+        yarn build
