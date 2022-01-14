@@ -216,15 +216,6 @@ export default (props) => {
   })
   const [showConfirmVoteLayout, setShowConfirmVoteLayout] = useState(false)
 
-  // useEffect(() => {
-  //   setTimeout(async () => {
-  //     await handleQQSubmit('498302569')
-  //     handleClickAnyWhere()
-  //   }, 1000)
-
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [])
-
   const setActive = useCallback((newValue: fetchListResult['active']) => {
     if (!newValue) return
 
