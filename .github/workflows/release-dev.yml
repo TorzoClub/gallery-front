@@ -39,3 +39,14 @@ jobs:
       run: |
         yarn install --production=false
         yarn build
+
+    - name: Upload App
+      env:
+        SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+        SSH_HOST: ${{ secrets.SSH_HOST }}
+        PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+        REMOTE_UPLOAD_PATH: ${{ secrets.REMOTE_UPLOAD_PATH }}
+      run: |
+        mkdir -p tmp
+        printf -- "$PRIVATE_KEY" >> tmp/private.pem
+        ./scripts/upload-development.sh
