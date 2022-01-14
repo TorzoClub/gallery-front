@@ -9,7 +9,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  build-app-dev:
+  build-app-prod:
     name: Build App with production
     runs-on: ubuntu-latest
 
@@ -31,7 +31,7 @@ jobs:
       env:
         NODE_ENV: production
       run: |
-        printf "${{secrets.REACT_ENV_DEVELOPMENT}}" > ./.env.production
+        printf "${{secrets.REACT_ENV_PRODUCTION}}" > ./.env.production
         yarn install --production=false
         yarn build:production
 
