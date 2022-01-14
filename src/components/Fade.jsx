@@ -1,7 +1,7 @@
 import React from 'react'
-import { Transition } from 'react-transition-group';
+import { Transition } from 'react-transition-group'
 
-const duration = 300;
+const duration = 300
 
 export default (props) => {
   const { appendStyle = {}, children, in: inProp } = props
