@@ -3,7 +3,7 @@ import React, { CSSProperties, useMemo } from 'react'
 import './index.scss'
 
 import PhotoBox from 'components/PhotoBox'
-import loadThumb from 'utils/load-thumb'
+import globalLoad from 'utils/queue-load'
 import { Gallery, Photo } from 'api/photo'
 import { PhotoStreamState } from 'components/Gallery'
 
@@ -25,8 +25,9 @@ const createColumns = (column_count: number, photos: Photo[]) => {
   const columns: Photo[][] = Array.from(Array(column_count)).map(() => [])
 
   photos.forEach(photo => {
-    photo.member && loadThumb(photo.member.avatar_thumb)
-    loadThumb(photo.thumb)
+    if (photo.member) globalLoad(photo.member.avatar_thumb)
+    globalLoad(photo.thumb)
+
     const columnsHeightList: ColumnsHeightList = columns.map(computeColumnHeight)
 
     const min_height_index = witchHeightIsMinimum(columnsHeightList)

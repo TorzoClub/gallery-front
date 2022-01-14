@@ -3,7 +3,7 @@ import heartIMG from 'assets/heart.png'
 import heartHighlightIMG from 'assets/heart-highlight.png'
 import style from './index.scss'
 
-import loadThumb from 'utils/load-thumb'
+import { useQueueload } from 'utils/queue-load'
 
 export type ImageInfo = {
   width: number
@@ -38,8 +38,10 @@ export default (props: Props) => {
   const { screen, gutter, boxWidth, photo, hideMember, avatar } = props
 
   const [loaded, setLoaded] = useState(false)
-  const [thumb, setThumb] = useState('')
-  const [avatarThumb, setAvatarThumb] = useState('')
+
+  const [thumb, loadPhotoThumb] = useQueueload()
+  const [avatarThumb, loadAvatarThumb] = useQueueload()
+
   const coverFrameEl = useRef<HTMLDivElement>(null)
 
   const ratio = (photo.height / photo.width).toFixed(4)
@@ -60,10 +62,10 @@ export default (props: Props) => {
 
   useEffect(() => {
     if (avatar) {
-      loadThumb(avatar.src_thumb).then(setAvatarThumb)
+      loadAvatarThumb(avatar.src_thumb)
     }
-    loadThumb(photo.src_thumb).then(setThumb)
-  }, [avatar, photo.src_thumb])
+    loadPhotoThumb(photo.src_thumb)
+  }, [avatar, loadAvatarThumb, loadPhotoThumb, photo.src_thumb])
 
   return (
     <div className={`image-box-wrapper ${screen}`}>
@@ -78,17 +80,17 @@ export default (props: Props) => {
             }
 
             const {
-              height: fromHeight,
-              width: fromWidth,
-              top: fromTop,
-              left: fromLeft
+              height,
+              width,
+              top,
+              left
             } = coverFrameEl.current.getBoundingClientRect()
 
             props.onClickCover({
-              height: fromHeight,
-              width: fromWidth,
-              top: fromTop,
-              left: fromLeft,
+              height,
+              width,
+              top,
+              left,
             })
           }}
         >

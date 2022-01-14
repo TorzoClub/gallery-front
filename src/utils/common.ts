@@ -30,3 +30,33 @@ export function updateListItemById<
 >(list: Item[], id: IDV, updateData: { [k in keyof Item]?: Item[k] }) {
   return updateListItemByProperty(list, 'id', id, updateData)
 }
+
+export function findList<
+  P extends string,
+  PV,
+  Item extends Record<P, PV> & Record<string, unknown>
+>(
+  list: Item[],
+  findFn: (item: Item) => boolean
+): number {
+  return list.findIndex((item) => {
+    return findFn(item)
+  })
+}
+
+export function findListByProperty<
+  P extends string,
+  PV,
+  Item extends Record<P, PV> & Record<string, unknown>
+>(list: Item[], findProperty: P, propertyValue: PV) {
+  return findList(
+    list,
+    (item) => item[findProperty] === propertyValue
+  )
+}
+
+export function removeListItemByIdx<T>(list: T[], willRemoveIdx: number) {
+  return list.filter((item, idx) => {
+    return idx !== willRemoveIdx
+  })
+}
