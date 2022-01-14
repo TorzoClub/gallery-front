@@ -28,6 +28,7 @@
     "semi": ["warn", "never"],
     "quotes": ["warn", "single"],
     "no-multiple-empty-lines": ["warn", { "max": 1 }],
-    "no-empty-function": ["allow"]
+    "no-empty-function": "off",
+    "@typescript-eslint/no-empty-function": "off"
   }
 }
