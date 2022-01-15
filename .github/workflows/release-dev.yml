@@ -61,7 +61,7 @@ jobs:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         MESSAGE_TEXT: |
-          ✅ 呵呵，相册测试服已经部署。
+          ✅ 呵呵，相册测试服前端已经部署。
           版本: ${{ steps.package-version.outputs.current-version}}
           构建数: ${{ github.run_number }}
           Commit message: ${{ github.event.commits[0].message }}
@@ -74,33 +74,9 @@ jobs:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         MESSAGE_TEXT: |
-          ❌ 呵呵，相册测试服部署失败。早该管管了。
+          ❌ 呵呵，相册测试服前端部署失败。早该管管了。
           版本: ${{ steps.package-version.outputs.current-version}}
           构建数: ${{ github.run_number }}
           Commit message: ${{ github.event.commits[0].message }}
       run: |
         ./scripts/tg-message.sh
-
-    # - name: Telegram send success message
-    #   if: ${{ success() }}
-    #   uses: appleboy/telegram-action@0.0.3
-    #   with:
-    #     to: ${{ secrets.TELEGRAM_TO }}
-    #     token: ${{ secrets.TELEGRAM_TOKEN }}
-    #     message: |
-    #       ✅ 呵呵，相册测试服已经部署。
-    #       版本: ${{ steps.package-version.outputs.current-version}}
-    #       构建数: ${{ github.run_number }}
-    #       Commit message: ${{ github.event.commits[0].message }}
-
-    # - name: Telegram send failure message
-    #   if: ${{ failure() }}
-    #   uses: appleboy/telegram-action@0.0.3
-    #   with:
-    #     to: ${{ secrets.TELEGRAM_TO }}
-    #     token: ${{ secrets.TELEGRAM_TOKEN }}
-    #     message: |
-    #       ❌ 呵呵，相册测试服部署失败。早该管管了。
-    #       版本: ${{ steps.package-version.outputs.current-version}}
-    #       构建数: ${{ github.run_number }}
-    #       Commit message: ${{ github.event.commits[0].message }}
