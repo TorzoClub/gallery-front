@@ -72,10 +72,10 @@ export default (props: Props) => {
   }, [avatar, loadAvatarThumb, loadPhotoThumb, photo.src_thumb])
 
   return (
-    <div className={`image-box-wrapper ${screen}`}>
+    <div className={`image-box-wrapper ${screen} ${hideMember ? 'hide-member' : 'has-member'}`}>
       <div className="image-box">
         <div
-          className={`cover-area ${hideMember ? 'front-index bottom-radius bottom-shadow' : ''}`}
+          className="cover-area"
           ref={coverFrameEl}
           style={coverFrameStyle}
           onClick={async () => {
