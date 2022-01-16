@@ -45,25 +45,27 @@ export default () => {
   const setActive = useCallback((newValue: fetchListResult['active']) => {
     if (!newValue) return
 
-    if (active) {
-      const oldPhotos = [...active.photos]
-      const newPhotos = [...newValue.photos]
+    _setActive((oldActive) => {
+      if (oldActive) {
+        const oldPhotos = [...oldActive.photos]
+        const newPhotos = [...newValue.photos]
 
-      newPhotos.forEach((p) => {
-        updateListItemById(oldPhotos, p.id, { ...p })
-      })
+        newPhotos.forEach((p) => {
+          updateListItemById(oldPhotos, p.id, { ...p })
+        })
 
-      _setActive({
-        ...newValue,
-        photos: oldPhotos,
-      })
-    } else {
-      _setActive({
-        ...newValue,
-        photos: shuffleArray(newValue.photos)
-      })
-    }
-  }, [active, _setActive])
+        return {
+          ...newValue,
+          photos: oldPhotos,
+        }
+      } else {
+        return {
+          ...newValue,
+          photos: shuffleArray(newValue.photos)
+        }
+      }
+    })
+  }, [])
 
   useEffect(() => {
     fetchList().then(({ active, galleries: list }) => {
@@ -116,8 +118,7 @@ export default () => {
     }).catch(err => {
       alert(`获取相册信息失败: ${err.message}`)
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentQQNum])
+  }, [currentQQNum, setActive, setConfirmState])
 
   const handleClickSubmit = async () => {
     if (!active) return
