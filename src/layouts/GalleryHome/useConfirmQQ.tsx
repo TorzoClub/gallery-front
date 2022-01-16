@@ -1,11 +1,11 @@
 import { confirmQQNum } from 'api/member'
 import ConfirmQQ, { ConfirmQQState } from 'components/ConfirmQQ'
 import React, { useCallback } from 'react'
-import { useStateObject } from 'utils/common'
+import { useAssignState } from 'utils/common'
 import vait from 'vait'
 
 export default ({ onConfirmSuccess }: { onConfirmSuccess(qqnum: string): void }) => {
-  const [confirmState, setConfirmState] = useStateObject<ConfirmQQState>({
+  const [confirmState, setConfirmState] = useAssignState<ConfirmQQState>({
     in: false,
     disabled: false,
     isDone: false,

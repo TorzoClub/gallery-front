@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useCallback, useState } from "react"
 
 export function updateListItem<
   P extends string,
@@ -65,12 +65,12 @@ export function removeListItemByIdx<T>(list: T[], willRemoveIdx: number) {
 
 type Optional<O> = { [k in keyof O]?: O[k] }
 
-export function useStateObject<S>(initObj: S) {
-  const [obj, setObj] = useState<S>(initObj)
+export function useAssignState<S>(initObj: S) {
+  const [state, setState] = useState<S>(initObj)
 
-  let newObj = { ...obj }
-  return [obj, (appendObj: Optional<S>) => {
-    newObj = { ...obj, ...newObj, ...appendObj }
-    return setObj(newObj)
-  }] as const
+  const setAssign = useCallback((updateState: Optional<S>) => {
+    return setState((oldState) => ({ ...oldState, ...updateState }))
+  }, [])
+
+  return [state, setAssign] as const
 }
