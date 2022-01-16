@@ -1,3 +1,5 @@
+import { useCallback, useState } from 'react'
+
 export function updateListItem<
   P extends string,
   PV,
@@ -59,4 +61,16 @@ export function removeListItemByIdx<T>(list: T[], willRemoveIdx: number) {
   return list.filter((item, idx) => {
     return idx !== willRemoveIdx
   })
+}
+
+type Optional<O> = { [k in keyof O]?: O[k] }
+
+export function useAssignState<S>(initObj: S) {
+  const [state, setState] = useState<S>(initObj)
+
+  const setAssign = useCallback((updateState: Optional<S>) => {
+    return setState((oldState) => ({ ...oldState, ...updateState }))
+  }, [])
+
+  return [state, setAssign] as const
 }

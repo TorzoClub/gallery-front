@@ -2,25 +2,38 @@ import React, { Component } from 'react'
 
 import WaitingInput from './WaitingInput'
 
-export default class WaitingInputFrame extends Component {
+type Timer =  ReturnType<typeof setTimeout>
+
+export type WaitingInputFrameProps = {
+  isFailure: boolean
+  disabled: boolean
+  placeholder: string
+  handleInputChange: (v: string) => void
+  handlesubmitDetect: (v: string) => void
+}
+export default class WaitingInputFrame extends Component<WaitingInputFrameProps> {
   state = {
     latestInputTimeStamp: 0,
     isFocus: false
   }
 
-  setQuickTriggerEvent(action, handler) {
+  public timer?: Timer
+
+  quickTriggerHandler() {}
+
+  setQuickTriggerEvent(action: 'remove' | 'add', handler: () => void) {
     window[`${action}EventListener`]('mousemove', handler)
     window[`${action}EventListener`]('touchstart', handler)
   }
 
-  handleInputChange = receivedValue => {
-    this.props.handleInputChange && this.props.handleInputChange()
+  handleInputChange = (receivedValue: string) => {
+    this.props.handleInputChange && this.props.handleInputChange(receivedValue)
 
     this.setState({
       latestInputTimeStamp: Date.now()
     })
 
-    clearTimeout(this.timer)
+    clearTimeout(this.timer as Timer)
     this.timer = setTimeout(() => {
       this.setQuickTriggerEvent('remove', this.quickTriggerHandler)
 
@@ -38,7 +51,7 @@ export default class WaitingInputFrame extends Component {
 
       const diff = Date.now() - latestInputTimeStamp
       if ((diff > 1200) && (diff < 1500)) {
-        clearTimeout(this.timer)
+        clearTimeout(this.timer as Timer)
         this.setQuickTriggerEvent('remove', this.quickTriggerHandler)
 
         console.log('((diff > 1200) && (diff < 1500))')
@@ -48,7 +61,7 @@ export default class WaitingInputFrame extends Component {
     this.setQuickTriggerEvent('add', this.quickTriggerHandler)
   }
 
-  submitDetect(submitValue) {
+  submitDetect(submitValue: string) {
     if (submitValue && submitValue.length) {
       // 空密码不会跳转的
       this.props.handlesubmitDetect && this.props.handlesubmitDetect(submitValue)

@@ -50,3 +50,27 @@ jobs:
       run: |
         ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
         ./scripts/upload.sh
+
+    - name: Telegram send success message
+      if: ${{ success() }}
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        COMMITS: ${{ toJSON(github.event.commits) }}
+        RUN_NUMBER: ${{ github.run_number }}
+        BUILD_DESCRIPTION: ✅ 呵呵，相册正式服前端已经部署。
+      run: |
+        node ./scripts/tg-message.js
+
+    - name: Telegram send failure message
+      if: ${{ failure() }}
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        COMMITS: ${{ toJSON(github.event.commits) }}
+        RUN_NUMBER: ${{ github.run_number }}
+        BUILD_DESCRIPTION: |
+          ❌ 呵呵，相册正式服前端部署失败。早该翻车了。
+          版本: ${{ steps.package-version.outputs.current-version}}
+      run: |
+        node ./scripts/tg-message.js

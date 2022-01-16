@@ -12,17 +12,13 @@ jobs:
   build-app-dev:
     name: Build App with development
     runs-on: ubuntu-latest
+    if: contains(github.event.commits.*.message, '[skip ci]') == false
 
     steps:
     - name: Use Node.js
       uses: actions/setup-node@v1
       with:
         node-version: '16'
-
-    - name: Setup Python 2.7
-      uses: actions/setup-python@v2
-      with:
-        python-version: '2.7'
 
     - name: Copy Repo Files
       uses: actions/checkout@v2
@@ -50,3 +46,31 @@ jobs:
       run: |
         ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
         ./scripts/upload.sh
+
+    - name: get-npm-version
+      id: package-version
+      uses: martinbeentjes/npm-get-version-action@master
+
+    - name: Telegram send success message
+      if: ${{ success() }}
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        COMMITS: ${{ toJSON(github.event.commits) }}
+        RUN_NUMBER: ${{ github.run_number }}
+        BUILD_DESCRIPTION: ✅ 呵呵，相册测试服前端已经部署。
+      run: |
+        node ./scripts/tg-message.js
+
+    - name: Telegram send failure message
+      if: ${{ failure() }}
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        COMMITS: ${{ toJSON(github.event.commits) }}
+        RUN_NUMBER: ${{ github.run_number }}
+        BUILD_DESCRIPTION: |
+          ❌ 呵呵，相册测试服前端部署失败。早该管管了。
+          版本: ${{ steps.package-version.outputs.current-version}}
+      run: |
+        node ./scripts/tg-message.js

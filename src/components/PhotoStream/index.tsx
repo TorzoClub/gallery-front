@@ -2,7 +2,7 @@ import React, { CSSProperties, useMemo } from 'react'
 
 import './index.scss'
 
-import PhotoBox from 'components/PhotoBox'
+import PhotoBox, { CoverClickEvent } from 'components/PhotoBox'
 import globalLoad from 'utils/queue-load'
 import { Gallery, Photo } from 'api/photo'
 import { PhotoStreamState } from 'components/Gallery'
@@ -49,12 +49,7 @@ export type Props = {
 
   photos: Photo[]
   onClickVote(photo_id: Photo['id']): void
-  onClickCover(fromInfo: {
-    height: number
-    width: number
-    top: number
-    left: number
-  }, photo: Photo['id']): void
+  onClickCover(clickInfo: CoverClickEvent, photo: Photo['id']): void
 
   selectedIdList: number[]
 }

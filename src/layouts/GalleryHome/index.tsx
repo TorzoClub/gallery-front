@@ -1,193 +1,21 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
-
 import vait from 'vait'
 
-import { confirmQQNum } from 'api/member'
-import { fetchList, fetchListResult, fetchListWithQQNum, Gallery as GalleryType, Photo, vote } from 'api/photo'
-
-import Loading from 'components/Loading'
-
-import Gallery from 'components/Gallery'
+import { fetchList, fetchListResult, fetchListWithQQNum, vote } from 'api/photo'
 
 // import BgImageUrl from 'assets/bg.png'
 
-import ConfirmQQ from 'components/ConfirmQQ'
+import LoadingLayout from './components/LoadingLayout'
+import ActivityLayout from './components/ActivityLayout'
+import useConfirmQQ from './useConfirmQQ'
 
+import Gallery from 'components/Gallery'
 import PhotoDetail, { Detail } from 'components/Detail'
-import GuideLayout from 'components/GuideLayout'
-import SubmitButton from 'components/SubmitButton'
-import ConfirmVote from '../../components/ConfirmVote'
-import shuffleArray from '../../utils/shuffle-array'
-import { updateListItemById } from '../../utils/common'
+import ConfirmVote from 'components/ConfirmVote'
+import shuffleArray from 'utils/shuffle-array'
+import { updateListItemById } from 'utils/common'
 
-const useStateObject = (initObj) => {
-  const [obj, setObj] = useState(initObj)
-
-  let newObj = { ...obj }
-  return [obj, (appendObj) => {
-    newObj = { ...obj, ...newObj, ...appendObj }
-    return setObj(newObj)
-  }]
-}
-
-function LoadingLayout() {
-  return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: '100vw',
-        height: '100vh'
-      }}
-    >
-      <Loading />
-    </div>
-  )
-}
-
-function ActivityLayout({
-  active,
-  hideVoteButton,
-  submiting,
-  showArrow,
-  confirmState,
-
-  submittedPool,
-  selectedIdList,
-  setSelectedIdList,
-
-  toDetail,
-  onClickSubmit,
-}) {
-  const [arrowTickTock, setArrowTickTock] = useState(0)
-
-  const showSubmitButton = !active.vote_submitted
-  const isSubmitted = submittedPool[active.id]
-  let buttonMode = ''
-
-  if (isSubmitted) {
-    buttonMode = 'done'
-  } else if (confirmState.in) {
-    buttonMode = 'blue'
-  } else if (selectedIdList.length) {
-    buttonMode = 'blue ring'
-  }
-
-  const handleClickVote = (gallery: GalleryType, photo: Photo) => {
-    console.warn('handleClickVote', gallery.vote_submitted, photo)
-
-    const isSubmitted = submittedPool[gallery.id]
-
-    if (isSubmitted || gallery.is_expired || gallery.vote_submitted) {
-      return
-    }
-
-    const { id } = photo
-
-    const newSelectedIdList = [...selectedIdList]
-
-    const idx = newSelectedIdList.indexOf(id)
-
-    if (idx === -1) {
-      if (gallery.vote_limit && (newSelectedIdList.length >= gallery.vote_limit)) {
-        // alert('enough')
-        return
-      } else {
-        setArrowTickTock(Date.now())
-        newSelectedIdList.push(id)
-      }
-    } else {
-      newSelectedIdList.splice(idx, 1)
-      setArrowTickTock(-Date.now())
-    }
-
-    setSelectedIdList(newSelectedIdList)
-  }
-
-  return (
-    <div className="gallery-wrapper">
-      <Gallery
-        hideVoteButton={hideVoteButton}
-        gallery={active}
-        selectedIdList={selectedIdList}
-        onClickVote={(photoId) => {
-          const idx = active.photos.map(p => p.id).indexOf(photoId)
-          if (idx === -1) return
-          const photo = active.photos[idx]
-
-          handleClickVote(active, photo)
-        }}
-        onClickCover={(from, photoId) => {
-          const idx = active.photos.map(p => p.id).indexOf(photoId)
-          if (idx === -1) return
-          const photo = active.photos[idx]
-
-          toDetail({
-            from,
-            thumb: photo.thumb,
-            src: photo.src,
-            height: photo.height,
-            width: photo.width
-          })
-        }}
-      />
-
-      {showSubmitButton && (
-        <div className="submit-button-wrapper">
-          {(() => {
-            if (submiting) {
-              return <Loading />
-            } else if (isSubmitted) {
-              return <div className="submitted">感谢你的投票</div>
-            } else {
-              return (
-                <GuideLayout
-                  showArrow={showArrow}
-                  animatedTickTock={arrowTickTock}
-                >
-                  <SubmitButton
-                    mode={buttonMode}
-                    clickButton={() => {
-                      if (!showSubmitButton || isSubmitted || !selectedIdList.length || submiting) {
-                        return
-                      } else {
-                        onClickSubmit()
-                      }
-                    }}
-                  />
-                </GuideLayout>
-              )
-            }
-          })()}
-
-          <style>{`
-            .submit-button-wrapper {
-              margin-top: 32px;
-
-              height: 64px;
-              width: 100%;
-
-              display: flex;
-              align-items: center;
-              align-content: center;
-              justify-content: center;
-            }
-
-            .submit-button-wrapper .submitted {
-              color: #999999;
-            }
-          `}</style>
-        </div>
-      )}
-    </div>
-  )
-}
-
-export default (props) => {
+export default () => {
   const [loaded, setLoaded] = useState(false)
 
   const [showArrow, setShowArrow] = useState(false)
@@ -203,41 +31,41 @@ export default (props) => {
 
   const [submittedPool, setSubmittedPool] = useState({})
 
-  // const [showDetail, setShowDetail] = useState(false)
-  // const [detailImageUrl, setDetailImageUrl] = useState('')
   const [imageDetail, setImageDetail] = useState<Detail | null>(null)
   const [currentQQNum, setCurrentQQNum] = useState(0)
-  const [confirmState, setConfirmState] = useStateObject({
-    in: false,
-    isDone: false,
-    isLoading: false,
-    isFailure: null,
-    disableInput: false
+
+  const [ConfirmQQLayout, confirmState, setConfirmState] = useConfirmQQ({
+    onConfirmSuccess(qq_num) {
+      setCurrentQQNum(Number(qq_num))
+    }
   })
+
   const [showConfirmVoteLayout, setShowConfirmVoteLayout] = useState(false)
 
   const setActive = useCallback((newValue: fetchListResult['active']) => {
     if (!newValue) return
 
-    if (active) {
-      const oldPhotos = [...active.photos]
-      const newPhotos = [...newValue.photos]
+    _setActive((oldActive) => {
+      if (oldActive) {
+        const oldPhotos = [...oldActive.photos]
+        const newPhotos = [...newValue.photos]
 
-      newPhotos.forEach((p) => {
-        updateListItemById(oldPhotos, p.id, { ...p })
-      })
+        newPhotos.forEach((p) => {
+          updateListItemById(oldPhotos, p.id, { ...p })
+        })
 
-      _setActive({
-        ...newValue,
-        photos: oldPhotos,
-      })
-    } else {
-      _setActive({
-        ...newValue,
-        photos: shuffleArray(newValue.photos)
-      })
-    }
-  }, [active, _setActive])
+        return {
+          ...newValue,
+          photos: oldPhotos,
+        }
+      } else {
+        return {
+          ...newValue,
+          photos: shuffleArray(newValue.photos)
+        }
+      }
+    })
+  }, [])
 
   useEffect(() => {
     fetchList().then(({ active, galleries: list }) => {
@@ -290,54 +118,7 @@ export default (props) => {
     }).catch(err => {
       alert(`获取相册信息失败: ${err.message}`)
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentQQNum])
-
-  const handleClickAnyWhere = useCallback(() => {
-    setShowConfirmVoteLayout(false)
-    vait.timeout(618).then(() => {
-      setHideVoteButton(false)
-      setShowArrow(true)
-    })
-  }, [])
-  const ConfirmVoteLayout = useMemo(() => (
-    <ConfirmVote
-      in={showConfirmVoteLayout}
-      handleClickAnyWhere={handleClickAnyWhere}
-    />
-  ), [handleClickAnyWhere, showConfirmVoteLayout])
-
-  const handleQQSubmit = useCallback(async qq_num => {
-    try {
-      setConfirmState({ isLoading: true })
-
-      const [exist] = await Promise.all([confirmQQNum(qq_num), vait.timeout(1500)])
-
-      if (exist) {
-        setCurrentQQNum(qq_num)
-      } else {
-        setConfirmState({
-          isLoading: false,
-          isFailure: new Error('朋友，你这个Q号不对，再看看？')
-        })
-      }
-    } catch (err) {
-      console.error('handlesubmit error', err)
-      setConfirmState({ isLoading: false, isFailure: err })
-    }
-  }, [setConfirmState])
-
-  const ConfirmQQLayout = (
-    <ConfirmQQ
-      {...confirmState}
-      handleInputChange={() => {
-        setConfirmState({
-          isFailure: null
-        })
-      }}
-      handlesubmitDetect={handleQQSubmit}
-    />
-  )
+  }, [currentQQNum, setActive, setConfirmState])
 
   const handleClickSubmit = async () => {
     if (!active) return
@@ -377,6 +158,21 @@ export default (props) => {
     }
   }
 
+  const handleClickAnyWhere = useCallback(() => {
+    setShowConfirmVoteLayout(false)
+    vait.timeout(618).then(() => {
+      setHideVoteButton(false)
+      setShowArrow(true)
+    })
+  }, [])
+
+  const ConfirmVoteLayout = useMemo(() => (
+    <ConfirmVote
+      in={showConfirmVoteLayout}
+      handleClickAnyWhere={handleClickAnyWhere}
+    />
+  ), [handleClickAnyWhere, showConfirmVoteLayout])
+
   return (
     <>
       <div className={'gallery-home'} style={{ minHeight: '100vh' }}>
@@ -402,8 +198,6 @@ export default (props) => {
                 }} />
               )}
 
-              {/* {normalPhotos} */}
-
               {
                 list.map(gallery => {
                   return (
@@ -412,14 +206,14 @@ export default (props) => {
                         hideVoteButton={hideVoteButton}
                         gallery={gallery}
                         selectedIdList={[]}
-                        onClickCover={(from, photoId) => {
+                        onClickCover={({ from, thumbBlobUrl }, photoId) => {
                           const idx = gallery.photos.map(p => p.id).indexOf(photoId)
                           if (idx === -1) return
                           const photo = gallery.photos[idx]
 
                           setImageDetail({
-                            from,
-                            thumb: photo.thumb,
+                            from: from,
+                            thumb: thumbBlobUrl,
                             src: photo.src,
                             height: photo.height,
                             width: photo.width

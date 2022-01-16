@@ -12,6 +12,15 @@ export type ImageInfo = {
   src: string
 }
 
+export type CoverClickEvent = {
+  from: {
+    height: number
+    width: number
+    top: number
+    left: number
+  },
+  thumbBlobUrl: string
+}
 export type Props = {
   screen: string
   gutter: CSSProperties['width']
@@ -26,12 +35,7 @@ export type Props = {
   avatar: ImageInfo | null
 
   handleClickVote(): void
-  onClickCover(fromInfo: {
-    height: number
-    width: number
-    top: number
-    left: number
-  }): void
+  onClickCover(clickInfo: CoverClickEvent): void
 }
 
 export default (props: Props) => {
@@ -68,10 +72,10 @@ export default (props: Props) => {
   }, [avatar, loadAvatarThumb, loadPhotoThumb, photo.src_thumb])
 
   return (
-    <div className={`image-box-wrapper ${screen}`}>
+    <div className={`image-box-wrapper ${screen} ${hideMember ? 'hide-member' : 'has-member'}`}>
       <div className="image-box">
         <div
-          className={`cover-area ${hideMember ? 'front-index bottom-radius bottom-shadow' : ''}`}
+          className="cover-area"
           ref={coverFrameEl}
           style={coverFrameStyle}
           onClick={async () => {
@@ -87,10 +91,13 @@ export default (props: Props) => {
             } = coverFrameEl.current.getBoundingClientRect()
 
             props.onClickCover({
-              height,
-              width,
-              top,
-              left,
+              from: {
+                height,
+                width,
+                top,
+                left,
+              },
+              thumbBlobUrl: thumb
             })
           }}
         >

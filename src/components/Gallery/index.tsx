@@ -5,6 +5,7 @@ import './index.scss'
 import Title from 'components/Title'
 import PhotoStream from 'components/PhotoStream'
 import { Gallery, Photo } from 'api/photo'
+import { CoverClickEvent } from 'components/PhotoBox'
 
 export type PhotoStreamState = {
   screen: 'normal' | 'mobile'
@@ -42,12 +43,7 @@ export type Props = {
   gallery: Gallery
   selectedIdList: number[]
   onClickVote?: (photo_id: Photo['id']) => void
-  onClickCover: (fromInfo: {
-    height: number
-    width: number
-    top: number
-    left: number
-  }, photo: Photo['id']) => void
+  onClickCover: (clickInfo: CoverClickEvent, photo: Photo['id']) => void
 }
 export default (props: Props) => {
   const [state, setState] = useState(getPhotoStreamState())
