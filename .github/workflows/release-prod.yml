@@ -58,7 +58,9 @@ jobs:
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         COMMITS: ${{ toJSON(github.event.commits) }}
         RUN_NUMBER: ${{ github.run_number }}
-        BUILD_DESCRIPTION: ✅ 呵呵，相册正式服前端已经部署。
+        BUILD_DESCRIPTION: |
+          ✅ 呵呵，相册正式服前端已经部署。
+          版本: ${{ steps.package-version.outputs.current-version }}
       run: |
         node ./scripts/tg-message.js
 
@@ -71,6 +73,6 @@ jobs:
         RUN_NUMBER: ${{ github.run_number }}
         BUILD_DESCRIPTION: |
           ❌ 呵呵，相册正式服前端部署失败。早该翻车了。
-          版本: ${{ steps.package-version.outputs.current-version}}
+          版本: ${{ steps.package-version.outputs.current-version }}
       run: |
         node ./scripts/tg-message.js

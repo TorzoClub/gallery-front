@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const pkg = require('../package.json')
 const childProcess = require('child_process')
 const fs = require('fs')
 
