@@ -12,6 +12,7 @@ jobs:
   build-app-dev:
     name: Build App with development
     runs-on: ubuntu-latest
+    if: contains(github.event.commits.*.message, '[skip ci]') == false
 
     steps:
     - name: Use Node.js
