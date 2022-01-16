@@ -1,33 +1,45 @@
 import React, { useRef, useState, useEffect } from 'react'
 import './WaitingInput.scss'
 
+export type WaitingInputProps = {
+  disabled: boolean
+  isFailure: boolean
+  placeholder: string
+  isFocus: boolean
+  onBlur(): void
+  onFocus(): void
+  onInputChange(v: string): void
+}
 export default ({
   disabled,
   isFailure,
-  onInputChange = () => undefined,
   placeholder = '',
+  isFocus = false,
   onBlur = () => undefined,
   onFocus = () => undefined,
-
-  isFocus = false
-}) => {
-  const inputEl = useRef(null)
-  const frontEl = useRef(null)
+  onInputChange = () => undefined,
+}: WaitingInputProps) => {
+  const inputEl = useRef<HTMLInputElement>(null)
+  const frontEl = useRef<HTMLPreElement>(null)
   const [value, setValue] = useState('')
 
   useEffect(() => {
-    if (frontEl.current.scrollWidth === 0) {
-      inputEl.current.style.width = '100%'
-    } else {
-      inputEl.current.style.width = `${frontEl.current.scrollWidth}px`
+    if (inputEl.current && frontEl.current) {
+      if (frontEl.current.scrollWidth === 0) {
+        inputEl.current.style.width = '100%'
+      } else {
+        inputEl.current.style.width = `${frontEl.current.scrollWidth}px`
+      }
     }
   })
 
   useEffect(() => {
-    if (isFocus) {
-      inputEl.current.focus()
-    } else {
-      inputEl.current.blur()
+    if (inputEl.current && frontEl.current) {
+      if (isFocus) {
+        inputEl.current.focus()
+      } else {
+        inputEl.current.blur()
+      }
     }
   }, [isFocus])
 
