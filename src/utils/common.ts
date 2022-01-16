@@ -1,3 +1,5 @@
+import { useState } from "react"
+
 export function updateListItem<
   P extends string,
   PV,
@@ -59,4 +61,16 @@ export function removeListItemByIdx<T>(list: T[], willRemoveIdx: number) {
   return list.filter((item, idx) => {
     return idx !== willRemoveIdx
   })
+}
+
+type Optional<O> = { [k in keyof O]?: O[k] }
+
+export function useStateObject<S>(initObj: S) {
+  const [obj, setObj] = useState<S>(initObj)
+
+  let newObj = { ...obj }
+  return [obj, (appendObj: Optional<S>) => {
+    newObj = { ...obj, ...newObj, ...appendObj }
+    return setObj(newObj)
+  }] as const
 }
