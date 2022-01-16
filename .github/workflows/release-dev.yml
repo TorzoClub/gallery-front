@@ -19,11 +19,6 @@ jobs:
       with:
         node-version: '16'
 
-    - name: Setup Python 2.7
-      uses: actions/setup-python@v2
-      with:
-        python-version: '2.7'
-
     - name: Copy Repo Files
       uses: actions/checkout@v2
 
@@ -60,23 +55,21 @@ jobs:
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        MESSAGE_TEXT: |
-          ✅ 呵呵，相册测试服前端已经部署。
-          版本: ${{ steps.package-version.outputs.current-version}}
-          构建数: ${{ github.run_number }}
-          Commit message: ${{ github.event.commits[0].message }}
+        COMMITS: ${{ toJSON(github.event.commits) }}
+        RUN_NUMBER: ${{ github.run_number }}
+        BUILD_DESCRIPTION: ✅ 呵呵，相册测试服前端已经部署。
       run: |
-        ./scripts/tg-message.sh
+        node ./scripts/tg-message.js
 
     - name: Telegram send failure message
       if: ${{ failure() }}
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        MESSAGE_TEXT: |
+        COMMITS: ${{ toJSON(github.event.commits) }}
+        RUN_NUMBER: ${{ github.run_number }}
+        BUILD_DESCRIPTION: |
           ❌ 呵呵，相册测试服前端部署失败。早该管管了。
           版本: ${{ steps.package-version.outputs.current-version}}
-          构建数: ${{ github.run_number }}
-          Commit message: ${{ github.event.commits[0].message }}
       run: |
-        ./scripts/tg-message.sh
+        node ./scripts/tg-message.js
