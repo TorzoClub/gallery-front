@@ -121,14 +121,14 @@ function ActivityLayout({
 
           handleClickVote(active, photo)
         }}
-        onClickCover={(from, photoId) => {
+        onClickCover={({ from, thumbBlobUrl }, photoId) => {
           const idx = active.photos.map(p => p.id).indexOf(photoId)
           if (idx === -1) return
           const photo = active.photos[idx]
 
           toDetail({
             from,
-            thumb: photo.thumb,
+            thumb: thumbBlobUrl,
             src: photo.src,
             height: photo.height,
             width: photo.width
@@ -412,14 +412,14 @@ export default (props) => {
                         hideVoteButton={hideVoteButton}
                         gallery={gallery}
                         selectedIdList={[]}
-                        onClickCover={(from, photoId) => {
+                        onClickCover={({ from, thumbBlobUrl }, photoId) => {
                           const idx = gallery.photos.map(p => p.id).indexOf(photoId)
                           if (idx === -1) return
                           const photo = gallery.photos[idx]
 
                           setImageDetail({
-                            from,
-                            thumb: photo.thumb,
+                            from: from,
+                            thumb: thumbBlobUrl,
                             src: photo.src,
                             height: photo.height,
                             width: photo.width
