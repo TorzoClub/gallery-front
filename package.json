@@ -1,7 +1,7 @@
 {
   "name": "torzo-gallery",
   "homepage": "./",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "dependencies": {
     "axios": "^0.24.0",
     "blueimp-md5": "^2.10.0",
