@@ -27,7 +27,7 @@ export default (props: Props) => {
     return (
       <div className="qq-input-frame">
         <WaitingInputFrame
-          isFailure={isFailure}
+          isFailure={Boolean(isFailure)}
           disabled={props.disabled}
           handleInputChange={props.handleInputChange}
           handlesubmitDetect={props.handlesubmitDetect}
