@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import vait from 'vait'
 
 import { confirmQQNum } from 'api/member'
-import { fetchList, fetchListResult, fetchListWithQQNum, Gallery as GalleryType, Photo, vote } from 'api/photo'
+import { fetchList, fetchListResult, fetchListWithQQNum, Gallery as GalleryType, GalleryInActive, Photo, vote } from 'api/photo'
 
 import Loading from 'components/Loading'
 
@@ -11,7 +11,7 @@ import Gallery from 'components/Gallery'
 
 // import BgImageUrl from 'assets/bg.png'
 
-import ConfirmQQ from 'components/ConfirmQQ'
+import ConfirmQQ, { ConfirmQQState } from 'components/ConfirmQQ'
 
 import PhotoDetail, { Detail } from 'components/Detail'
 import GuideLayout from 'components/GuideLayout'
@@ -20,14 +20,16 @@ import ConfirmVote from '../../components/ConfirmVote'
 import shuffleArray from '../../utils/shuffle-array'
 import { updateListItemById } from '../../utils/common'
 
-const useStateObject = (initObj) => {
-  const [obj, setObj] = useState(initObj)
+type Optional<O> = { [k in keyof O]?: O[k] }
+
+function useStateObject<S>(initObj: S) {
+  const [obj, setObj] = useState<S>(initObj)
 
   let newObj = { ...obj }
-  return [obj, (appendObj) => {
+  return [obj, (appendObj: Optional<S>) => {
     newObj = { ...obj, ...newObj, ...appendObj }
     return setObj(newObj)
-  }]
+  }] as const
 }
 
 function LoadingLayout() {
@@ -49,6 +51,21 @@ function LoadingLayout() {
   )
 }
 
+type ActivityLayoutProps = {
+  active: GalleryInActive
+  hideVoteButton: boolean
+  submiting: boolean
+  showArrow: boolean,
+  confirmState: ConfirmQQState
+
+  submittedPool: Record<string, number | undefined>
+  selectedIdList: number[]
+  setSelectedIdList: (idList: number[]) => void
+
+  toDetail: (d: Detail) => void
+  onClickSubmit: () => void
+}
+
 function ActivityLayout({
   active,
   hideVoteButton,
@@ -62,7 +79,7 @@ function ActivityLayout({
 
   toDetail,
   onClickSubmit,
-}) {
+}: ActivityLayoutProps) {
   const [arrowTickTock, setArrowTickTock] = useState(0)
 
   const showSubmitButton = !active.vote_submitted
@@ -187,7 +204,7 @@ function ActivityLayout({
   )
 }
 
-export default (props) => {
+export default () => {
   const [loaded, setLoaded] = useState(false)
 
   const [showArrow, setShowArrow] = useState(false)
@@ -203,16 +220,14 @@ export default (props) => {
 
   const [submittedPool, setSubmittedPool] = useState({})
 
-  // const [showDetail, setShowDetail] = useState(false)
-  // const [detailImageUrl, setDetailImageUrl] = useState('')
   const [imageDetail, setImageDetail] = useState<Detail | null>(null)
   const [currentQQNum, setCurrentQQNum] = useState(0)
-  const [confirmState, setConfirmState] = useStateObject({
+  const [confirmState, setConfirmState] = useStateObject<ConfirmQQState>({
     in: false,
+    disabled: false,
     isDone: false,
     isLoading: false,
     isFailure: null,
-    disableInput: false
   })
   const [showConfirmVoteLayout, setShowConfirmVoteLayout] = useState(false)
 
@@ -323,7 +338,7 @@ export default (props) => {
       }
     } catch (err) {
       console.error('handlesubmit error', err)
-      setConfirmState({ isLoading: false, isFailure: err })
+      setConfirmState({ isLoading: false, isFailure: err as Error })
     }
   }, [setConfirmState])
 

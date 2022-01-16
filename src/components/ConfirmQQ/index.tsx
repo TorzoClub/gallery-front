@@ -8,15 +8,17 @@ import WaitingInputFrame from './WaitingInputFrame'
 import Loading from 'components/Loading'
 import SubmitButton from 'components/SubmitButton'
 
-export type Props = Pick<DialogLayoutProps, 'in'> & {
+export type ConfirmQQState = Pick<DialogLayoutProps, 'in'> & {
   isLoading: boolean
   disabled: boolean
   isDone: boolean
   isFailure: Error | null
-
+}
+export type ConfirmQQEvent = {
   handleInputChange: (s: string) => void
   handlesubmitDetect: (s: string) => void
 }
+export type Props = ConfirmQQState & ConfirmQQEvent
 
 export default (props: Props) => {
   const { in: inProp, isDone, isFailure } = props
